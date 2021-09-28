@@ -1,11 +1,13 @@
 #include "csv_persistence.h"
 
-#include "util.h"
-
 #include <filesystem>
 #include <fstream>
 #include <algorithm>
+#include <string>
+#include <string_view>
 
+#include <fmt/core.h>
+#include <spdlog/spdlog.h>
 #include <csv.hpp>
 
 namespace hakurei::core
@@ -20,10 +22,9 @@ csv_persistence::csv_persistence(std::string const& name, table::table_desc cons
 {
     std::error_code ec;
     create_directories(std::filesystem::path(base_path), ec);
-    if (ec)
-    {
-        // TODO: log warn
-    }
+    if (ec && ec != std::errc::no_such_file_or_directory)
+        spdlog::warn("[pers] Failed to create directory {}: {}; Code: {}", 
+            base_path, ec.message(), ec.value());
 }
 
 void csv_persistence::save()
@@ -53,7 +54,7 @@ void csv_persistence::save()
     }
     catch (std::system_error& err)
     {
-        throw persistence_error(to_string(err, "File I/O Error: "));
+        throw persistence_error(fmt::format("File I/O Error: {}; Code: {}", err.what(), err.code().value()));
     }
 }
 
@@ -73,37 +74,41 @@ void csv_persistence::load()
         {
             auto size = types.size();
             if (csv_row.size() < size)
-                continue; // TODO: log warn
+            {
+                spdlog::warn("[pers] Malformed CSV row (in JSON):{}, size mismatch: {}",
+                    csv_row.to_json(), csv_row.size());
+                continue;
+            }
             table::row_t row;
-            row.reserve(csv_row.size());
+            row.reserve(size);
             try
             {
                 for (size_t i = 0; i < size; i++)
                 {
-                    switch (types[size])
+                    switch (types[i])
                     {
                     case table::table_column_type::int32:
-                        row[i] = csv_row[i].get<int32_t>();
+                        row.push_back(csv_row[i].get<int32_t>());
                         break;
                     // TODO: Datetime notation
                     case table::table_column_type::datetime:
                     case table::table_column_type::int64:
-                        row[i] = csv_row[i].get<int64_t>();
+                        row.push_back(csv_row[i].get<int64_t>());
                         break;
                     case table::table_column_type::decimal:
-                        row[i] = csv_row[i].get<double>();
+                        row.push_back(csv_row[i].get<double>());
                         break;
                     case table::table_column_type::string:
-                        row[i] = csv_row[i].get<std::string>();
+                        row.emplace_back(std::string(csv_row[i].get_sv()));
                         break;
                     default:
-                        // TODO: log warn
-                        continue;
+                        assert(false && "table_column_type didn't exhaust!");
                     }
                 }
             } catch (std::runtime_error& err)
             {
-                // TODO: log warn
+                spdlog::warn("[pers] Malformed CSV row (in JSON):{}, type mismatch: {}",
+                    csv_row.to_json(), err.what());
                 continue;
             }
             auto header = row[0];
@@ -112,7 +117,7 @@ void csv_persistence::load()
     }
     catch (std::system_error& err)
     {
-        throw persistence_error(to_string(err, "File I/O Error: "));
+        throw persistence_error(fmt::format("File I/O Error: {}; Code: {}", err.what(), err.code().value()));
     }
 }
 

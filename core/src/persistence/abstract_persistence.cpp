@@ -24,7 +24,7 @@ bool abstract_memory_persistence::load(table::cell_t const& id, table::row_t& ro
 
 bool abstract_memory_persistence::remove(table::cell_t const& id)
 {
-    if (!_table->rows().erase(id) > 0)
+    if (_table->rows().erase(id) <= 0)
         return false;
     save();
     return true;
