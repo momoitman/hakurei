@@ -1,2 +1,2 @@
-vendor/* linguist-vendored
-conan.cmake linguist-vendored
+vendor/* linguist-vendored=true
+conan.cmake linguist-vendored=true
