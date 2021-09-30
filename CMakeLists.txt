@@ -12,6 +12,7 @@ conan_cmake_configure(
         spdlog/1.9.2
         gtest/cci.20210126
         fmt/8.0.1
+        date/3.0.1
     GENERATORS
         cmake_find_package
 )
@@ -26,6 +27,7 @@ conan_cmake_install(
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 find_package(GTest REQUIRED)
+find_package(date REQUIRED)
 
 add_subdirectory(core)
 add_subdirectory(ui)

@@ -7,7 +7,6 @@
 #include <variant>
 #include <map>
 #include <stdexcept>
-#include <sstream>
 #include <iomanip>
 
 #include <fmt/core.h>
