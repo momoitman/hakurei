@@ -14,8 +14,10 @@ add_library(hakurei_core
     "src/model/order.cpp"
     "src/model/item.cpp"
     "src/model/serialization.cpp"
+
+    "src/service/auth_service.cpp"
 )
-target_include_directories(hakurei_core PRIVATE "include" "../vendor")
+target_include_directories(hakurei_core PRIVATE "include" "../vendor" "src")
 target_link_libraries(hakurei_core stdc++fs)
 target_link_libraries(hakurei_core spdlog::spdlog GTest::GTest fmt::fmt date::date)
 
@@ -26,7 +28,7 @@ add_executable(hakurei_core_test
     "test/persistence/csv_persistence_test.cpp"
     "test/model/serialization_test.cpp"
 )
-target_include_directories(hakurei_core_test PRIVATE "include" "src" "../vendor")
+target_include_directories(hakurei_core_test PRIVATE "include" "../vendor" "src" "test")
 target_link_libraries(hakurei_core_test hakurei_core)
 include(GoogleTest)
 gtest_discover_tests(hakurei_core_test)

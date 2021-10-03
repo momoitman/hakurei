@@ -27,5 +27,19 @@ struct serializer
     static datetime_t deserialize_datetime(int64_t value);
 };
 
+template <class T>
+struct persistence_initializer
+{
+    static const char* name() = delete;
+    static persistence::table::table_desc table_desc() = delete;
+};
+
+template < >
+struct persistence_initializer<user>
+{
+    static const char* name();
+    static persistence::table::table_desc table_desc();
+};
+
 }
 }  // namespace hakurei::core

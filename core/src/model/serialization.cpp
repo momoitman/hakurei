@@ -1,5 +1,6 @@
 #include "serialization.h"
 
+#include "config.h"
 #include "model/item.h"
 #include "model/user.h"
 #include "model/order.h"
@@ -114,6 +115,21 @@ int64_t serializer::serialize_datetime(datetime_t value)
 datetime_t serializer::deserialize_datetime(int64_t value)
 {
     return std::chrono::system_clock::time_point(std::chrono::milliseconds(value));
+}
+
+const char* persistence_initializer<user>::name()
+{
+    return "user";
+}
+
+persistence::table::table_desc persistence_initializer<user>::table_desc()
+{
+    using namespace persistence::table;
+    return persistence::table::table_desc(
+        {"id", "name", "password", "contact", "address", "balance"},
+        {table_column_type::string, table_column_type::string, table_column_type::string,
+         table_column_type::string, table_column_type::string, table_column_type::int32}
+    );
 }
 }  // namespace model
 }  // namespace hakurei::core

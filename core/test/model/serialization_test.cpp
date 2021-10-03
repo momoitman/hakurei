@@ -105,3 +105,82 @@ TEST(Hakurei_model_test, item_model)
     EXPECT_EQ(duration_cast<seconds>(i.on_stock_time().time_since_epoch()).count(), 1633089600);  // 2021-10-1 10:00 UTC
     EXPECT_EQ(i.status(), item_status::on_stock);
 }
+
+TEST(Hakurei_model_test, item_serialization)
+{
+    table::row_t row;
+    using namespace std::chrono;
+    using namespace date;
+    item i(
+        "M00001", "Takehana Note Figma 1:1", 10000000,
+        "Takehana-mama's 1:1 figma!!", "U00001",
+        sys_days(2021_y / October / 1) + 12h, item_status::on_stock);  // 2021-10-1 10:00 UTC
+    serializer::serialize(i, row);
+    EXPECT_EQ(row[0], table::cell_t("M00001"));
+    EXPECT_EQ(row[1], table::cell_t("Takehana Note Figma 1:1"));
+    EXPECT_EQ(row[2], table::cell_t(10000000));
+    EXPECT_EQ(row[3], table::cell_t("Takehana-mama's 1:1 figma!!"));
+    EXPECT_EQ(row[4], table::cell_t("U00001"));
+    EXPECT_EQ(row[5], table::cell_t(static_cast<std::int64_t>(1633089600000)));  // 2021-10-1 10:00 UTC
+    EXPECT_EQ(row[6], table::cell_t(1));
+
+    item i2;
+    serializer::deserialize(row, i2);
+    EXPECT_EQ(i2.id(), "M00001");
+    EXPECT_EQ(i2.name(), "Takehana Note Figma 1:1");
+    EXPECT_EQ(i2.price_cents(), 10000000);
+    EXPECT_EQ(i2.description(), "Takehana-mama's 1:1 figma!!");
+    EXPECT_EQ(duration_cast<seconds>(i2.on_stock_time().time_since_epoch()).count(), 1633089600);  // 2021-10-1 10:00 UTC
+    EXPECT_EQ(i2.status(), item_status::on_stock);
+
+    i2.set_name("Inuyama Tamaki Pillow");
+    EXPECT_EQ(i.name(), "Takehana Note Figma 1:1");
+
+    i.set_name("Mr.Quin Mark Cup");
+    EXPECT_EQ(i2.name(), "Inuyama Tamaki Pillow");
+}
+
+TEST(Hakurei_model_test, order_model)
+{
+    using namespace std::chrono;
+    using namespace date;
+    order o(
+        "T00001", "M00001", 10000000,
+        sys_days(2021_y / October / 1) + 12h, // 2021-10-1 10:00 UTC
+        "U00001", "U00002");
+    EXPECT_EQ(o.id(), "T00001");
+    EXPECT_EQ(o.item_id(), "M00001");
+    EXPECT_EQ(o.price_cents(), 10000000);
+    EXPECT_EQ(duration_cast<seconds>(o.time().time_since_epoch()).count(), 1633089600);  // 2021-10-1 10:00 UTC
+    EXPECT_EQ(o.seller_uid(), "U00001");
+    EXPECT_EQ(o.customer_uid(), "U00002");
+}
+
+TEST(Hakurei_model_test, order_serialization)
+{
+    table::row_t row;
+    using namespace std::chrono;
+    using namespace date;
+    order o(
+        "T00001", "M00001", 10000000,
+        sys_days(2021_y / October / 1) + 12h,  // 2021-10-1 10:00 UTC
+        "U00001", "U00002");
+
+    serializer::serialize(o, row);
+    EXPECT_EQ(row[0], table::cell_t("T00001"));
+    EXPECT_EQ(row[1], table::cell_t("M00001"));
+    EXPECT_EQ(row[2], table::cell_t(10000000));
+    EXPECT_EQ(row[3], table::cell_t(static_cast<std::int64_t>(1633089600000)));  // 2021-10-1 10:00 UTC
+    EXPECT_EQ(row[4], table::cell_t("U00001"));
+    EXPECT_EQ(row[5], table::cell_t("U00002"));  // 2021-10-1 10:00 UTC
+
+    order o2;
+    serializer::deserialize(row, o2);
+
+    EXPECT_EQ(o2.id(), "T00001");
+    EXPECT_EQ(o2.item_id(), "M00001");
+    EXPECT_EQ(o2.price_cents(), 10000000);
+    EXPECT_EQ(duration_cast<seconds>(o2.time().time_since_epoch()).count(), 1633089600);  // 2021-10-1 10:00 UTC
+    EXPECT_EQ(o2.seller_uid(), "U00001");
+    EXPECT_EQ(o2.customer_uid(), "U00002");
+}
