@@ -136,6 +136,7 @@ std::unique_ptr<abstract_persistence> create_csv_persistence(std::string const& 
 bool register_csv_persistence()
 {
     get_active_persistence_registry().register_factory("csv_persistence", create_csv_persistence);
+    return true;
 }
 
 }  // namespace persistence

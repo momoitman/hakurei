@@ -29,9 +29,19 @@ public:
     }
     T construct(std::string const& name, CtorArgs... args) const
     {
+        if (name.empty())
+            return construct_any(args...);
         auto it = _factories.find(name);
         if (it == _factories.end())
             throw factory_not_found(name);
+        return (it->second)(std::forward(args...));
+    }
+
+    T construct_any(CtorArgs... args) const
+    {
+        auto it = _factories.begin();
+        if (it == _factories.end())
+            throw factory_not_found("No any factory registered");
         return (it->second)(std::forward(args...));
     }
 
