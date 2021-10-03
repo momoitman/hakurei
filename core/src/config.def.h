@@ -6,10 +6,3 @@
 
 // This file is default values for the variables.
 // All values must be corresponding against config.h, and be appended with suffix _DEF
-
-#define HAKUREI_PERSISTENCE_NAME csv_persistence
-#define HAKUREI_PERSISTENCE_INIT_DEF(name, table_spec) name, table_spec, "./data"
-
-#ifndef HAKUREI_PERSISTENCE_INIT
-#define HAKUREI_PERSISTENCE_INIT HAKUREI_PERSISTENCE_INIT_DEF
-#endif

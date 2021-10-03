@@ -38,5 +38,11 @@ bool abstract_memory_persistence::append(table::row_t& row)
         save();
     return inserted;
 }
+
+persistence_factory default_registry;
+persistence_factory& get_active_persistence_registry()
+{
+    return default_registry;
+}
 }  // namespace persistence
 }  // namespace hakurei::core

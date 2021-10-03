@@ -1,5 +1,7 @@
 #include "csv_persistence.h"
 
+#include "util/setting.h"
+
 #include <filesystem>
 #include <fstream>
 #include <algorithm>
@@ -15,8 +17,11 @@ namespace hakurei::core
 namespace persistence
 {
 const std::string FILE_EXTENSION = ".csv";
+bool register_csv_persistence();
+bool _csv_persistence_registered = register_csv_persistence();
 
-csv_persistence::csv_persistence(std::string const& name, table::table_desc const& table_spec, std::string base_path)
+csv_persistence::csv_persistence(
+    std::string const& name, table::table_desc const& table_spec, std::string const& base_path)
     : abstract_memory_persistence(name, table_spec),
       _path(std::filesystem::path(base_path) / (name + FILE_EXTENSION))
 {
@@ -119,6 +124,18 @@ void csv_persistence::load()
     {
         throw persistence_error(fmt::format("File I/O Error: {}; Code: {}", err.what(), err.code().value()));
     }
+}
+
+std::unique_ptr<abstract_persistence> create_csv_persistence(std::string const& name, table::table_desc const& table_desc)
+{
+    return std::make_unique<csv_persistence>(
+        name, table_desc, 
+        get_active_setting()["csv_persistence"]["basic_path"].value_or("./data"));
+}
+
+bool register_csv_persistence()
+{
+    get_active_persistence_registry().register_factory("csv_persistence", create_csv_persistence);
 }
 
 }  // namespace persistence

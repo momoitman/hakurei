@@ -18,7 +18,7 @@ public:
     void save() override;
     void load() override;
 
-    csv_persistence(std::string const& name, table::table_desc const& table_spec, std::string base_path);
+    csv_persistence(std::string const& name, table::table_desc const& table_spec, std::string const& base_path);
     ~csv_persistence() override = default;
 
     csv_persistence& operator=(const csv_persistence& other) = delete;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "table.h"
+#include "util/factory_registry.h"
 
 #include <string>
 #include <memory>
@@ -80,6 +81,13 @@ public:
     {
     }
 };
+
+using persistence_factory = factory_registry<
+    std::unique_ptr<abstract_persistence>,
+    std::unique_ptr<abstract_persistence> (*)(std::string const&, table::table_desc const&),
+    std::string, table::table_desc
+>;
+persistence_factory& get_active_persistence_registry();
 
 }  // namespace persistence
 }  // namespace hakurei::core

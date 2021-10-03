@@ -8,6 +8,7 @@
 #include "persistence/abstract_persistence.h"
 
 #include <tuple>
+#include <memory>
 
 namespace hakurei::core
 {
@@ -16,12 +17,12 @@ namespace model
 template<class T>
 class repository
 {
-///public:
-///    repository()
-///        : _persistence() {}
-///
-///private:
-///    persistence::abstract_persistence _persistence;
+public:
+    repository()
+        : _persistence() {}
+
+private:
+    std::unique_ptr<persistence::abstract_persistence> _persistence;
 };
 
 using repository_hub = 

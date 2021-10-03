@@ -7,6 +7,8 @@ project("hakurei_core")
 add_library(hakurei_core 
     "src/core_main.cpp"
 
+    "src/util/setting.cpp"
+
     "src/persistence/abstract_persistence.cpp"
     "src/persistence/csv_persistence.cpp"
 
@@ -19,7 +21,7 @@ add_library(hakurei_core
 )
 target_include_directories(hakurei_core PRIVATE "include" "../vendor" "src")
 target_link_libraries(hakurei_core stdc++fs)
-target_link_libraries(hakurei_core spdlog::spdlog GTest::GTest fmt::fmt date::date)
+target_link_libraries(hakurei_core spdlog::spdlog GTest::GTest fmt::fmt date::date tomlplusplus::tomlplusplus)
 
 enable_testing()
 add_executable(hakurei_core_test
