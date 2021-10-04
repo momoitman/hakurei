@@ -41,5 +41,19 @@ struct persistence_initializer<user>
     static persistence::table::table_desc table_desc();
 };
 
+template <>
+struct persistence_initializer<order>
+{
+    static const char* name();
+    static persistence::table::table_desc table_desc();
+};
+
+template <>
+struct persistence_initializer<item>
+{
+    static const char* name();
+    static persistence::table::table_desc table_desc();
+};
+
 }
 }  // namespace hakurei::core

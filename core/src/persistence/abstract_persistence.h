@@ -16,6 +16,8 @@ class abstract_persistence
 public:
     virtual bool save(table::row_t const& row) = 0;
     virtual bool load(table::cell_t const& id, table::row_t& row) = 0;
+    virtual void find_by_column(int column_idx, table::cell_t const& content, std::vector<table::row_t>& dest) = 0;
+    virtual bool find_one_by_column(int column_idx, table::cell_t const& content, table::row_t& dest) = 0;
 
     virtual void save() = 0;
     virtual void load() = 0;
@@ -23,6 +25,7 @@ public:
 
     virtual bool remove(table::cell_t const& id) = 0;
     virtual bool append(table::row_t& row) = 0;
+    virtual std::optional<table::cell_t> get_last_id() = 0;
 
     /**
      * Get all rows in the form of a table.
@@ -55,6 +58,40 @@ public:
     bool remove(table::cell_t const& id) override;
     bool append(table::row_t& row) override;
     std::shared_ptr<table::table> all_rows_table() override { return _table; }
+    std::optional<table::cell_t> get_last_id() override
+    {
+        auto it = _table->rows().rbegin();
+        if (it == _table->rows().rend())
+            return std::nullopt;
+        return it->first;
+    }
+    void find_by_column(int column_idx, table::cell_t const& content,
+        std::vector<table::row_t>& dest) override
+    {
+        // TODO: optimize with boost::multiindex
+        if (column_idx >= _table->desc().size())
+            throw std::invalid_argument("Bad column index");
+        auto& rows = _table->rows();
+        dest.clear();
+        for (auto& [_, row] : rows)
+            if (row[column_idx] == content)
+                dest.push_back(row);
+    }
+    bool find_one_by_column(int column_idx, table::cell_t const& content,
+                            table::row_t& dest) override
+    {
+        // TODO: optimize with boost::multiindex
+        if (column_idx >= _table->desc().size())
+            throw std::invalid_argument("Bad column index");
+        auto& rows = _table->rows();
+        for (auto& [_, row] : rows)
+            if (row[column_idx] == content)
+            {
+                dest = row;
+                return true;
+            }
+        return false;
+    }
 
     abstract_memory_persistence(std::string const& name, table::table_desc const& table_spec)
         : abstract_persistence(name, table_spec),

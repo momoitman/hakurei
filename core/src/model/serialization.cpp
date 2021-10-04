@@ -131,5 +131,34 @@ persistence::table::table_desc persistence_initializer<user>::table_desc()
          table_column_type::string, table_column_type::string, table_column_type::int32}
     );
 }
+
+const char* persistence_initializer<order>::name()
+{
+    return "order";
+}
+
+persistence::table::table_desc persistence_initializer<order>::table_desc()
+{
+    using namespace persistence::table;
+    return persistence::table::table_desc(
+        {"id", "item_id", "price_cents", "time", "seller_uid", "customer_uid"},
+        {table_column_type::string, table_column_type::string, table_column_type::int32,
+         table_column_type::int64, table_column_type::string, table_column_type::string});
+}
+
+const char* persistence_initializer<item>::name()
+{
+    return "item";
+}
+
+persistence::table::table_desc persistence_initializer<item>::table_desc()
+{
+    using namespace persistence::table;
+    return persistence::table::table_desc(
+        {"id", "name", "price_cents", "description", "seller_uid", "on_stock_time", "status"},
+        {table_column_type::string, table_column_type::string, table_column_type::int32,
+         table_column_type::string, table_column_type::string,
+            table_column_type::int64, table_column_type::int32});
+}
 }  // namespace model
 }  // namespace hakurei::core

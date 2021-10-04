@@ -16,6 +16,7 @@ add_library(hakurei_core
     "src/model/order.cpp"
     "src/model/item.cpp"
     "src/model/serialization.cpp"
+    "src/model/repository.cpp"
 
     "src/service/auth_service.cpp"
 )

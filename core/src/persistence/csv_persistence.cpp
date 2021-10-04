@@ -122,7 +122,9 @@ void csv_persistence::load()
     }
     catch (std::system_error& err)
     {
-        throw persistence_error(fmt::format("File I/O Error: {}; Code: {}", err.what(), err.code().value()));
+        spdlog::warn(
+            "[pers] File I/O Error: {}; Code: {}", err.what(), err.code().value());
+        //throw persistence_error(fmt::format("File I/O Error: {}; Code: {}", err.what(), err.code().value()));
     }
 }
 
