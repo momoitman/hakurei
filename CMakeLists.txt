@@ -15,6 +15,7 @@ conan_cmake_configure(
         date/3.0.1
         tomlplusplus/2.5.0
         fruit/3.6.0
+        argon2/20190702
     GENERATORS
         cmake_find_package
 )
@@ -32,6 +33,7 @@ find_package(GTest REQUIRED)
 find_package(date REQUIRED)
 find_package(tomlplusplus REQUIRED)
 find_package(fruit REQUIRED)
+find_package(argon2 REQUIRED)
 
 add_subdirectory(core)
 add_subdirectory(ui)

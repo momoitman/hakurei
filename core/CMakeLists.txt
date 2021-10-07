@@ -8,6 +8,7 @@ add_library(hakurei_core
     "src/core_main.cpp"
 
     "src/util/setting.cpp"
+    "src/util/argon2_password_hasher.cpp"
 
     "src/persistence/abstract_persistence.cpp"
     "src/persistence/csv_persistence.cpp"
@@ -18,14 +19,19 @@ add_library(hakurei_core
     "src/model/serialization.cpp"
     "src/model/repository.cpp"
 
+    "src/service/id_generator.cpp"
     "src/service/auth_service.cpp"
 )
 target_include_directories(hakurei_core PRIVATE "include" "../vendor" "src")
 target_link_libraries(hakurei_core stdc++fs)
-target_link_libraries(hakurei_core spdlog::spdlog GTest::GTest fmt::fmt date::date tomlplusplus::tomlplusplus fruit::fruit)
+target_link_libraries(hakurei_core 
+    spdlog::spdlog GTest::GTest fmt::fmt date::date
+    tomlplusplus::tomlplusplus fruit::fruit argon2::argon2
+)
 
 enable_testing()
 add_executable(hakurei_core_test
+    "test/util/argon2_password_hasher_test.cpp"
     "test/persistence/table_test.cpp"
     "test/persistence/memory_persistence_test.cpp"
     "test/persistence/csv_persistence_test.cpp"

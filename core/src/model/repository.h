@@ -84,6 +84,10 @@ private:
     std::unique_ptr<persistence::abstract_persistence> _persistence;
 };
 
+using user_repository = repository<class user, std::string>;
+using item_repository = repository<class item, std::string>;
+using order_repository = repository<class order, std::string>;
+
 class repository_hub
 {
 public:
@@ -96,9 +100,9 @@ public:
     [[nodiscard]] repository<order, std::string>& order_repo() { return _order; }
 
 private:
-    repository<class user, std::string> _user;
-    repository<class item, std::string> _item;
-    repository<class order, std::string> _order;
+    user_repository _user;
+    item_repository _item;
+    order_repository _order;
 };
 
 using repository_component = fruit::Component<
