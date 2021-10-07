@@ -9,24 +9,29 @@ using namespace std::literals;
 
 namespace hakurei::core
 {
-std::unique_ptr<toml::table> default_setting;
-toml::table& get_active_setting()
+//module_setting get_module_setting()
+setting_t* create_setting()
 {
-    if (!default_setting)
+    setting_t* setting;
+    try
     {
-        try
-        {
-            default_setting = std::make_unique<toml::table>(toml::parse_file("settings.toml"sv));
-        }
-        catch (const toml::parse_error& err)
-        {
-            std::ostringstream temp;
-            temp << err;
-            spdlog::critical("[settings] Failed to parse settings.toml, using default: {}", temp.str());
-            default_setting = std::make_unique<toml::table>();
-        }
+        setting = new setting_t(toml::parse_file("settings.toml"sv));
     }
-    return *default_setting;
+    catch (const toml::parse_error& err)
+    {
+        std::ostringstream temp;
+        temp << err;
+        spdlog::critical("[settings] Failed to parse settings.toml, using default: {}", temp.str());
+        setting = new setting_t;
+    }
+
+    return setting;
 }
 
+setting_component get_setting_component()
+{
+    return fruit::createComponent()
+        .registerProvider([]() { return create_setting(); });
+    
+}
 }  // namespace hakurei::core

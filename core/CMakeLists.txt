@@ -22,7 +22,7 @@ add_library(hakurei_core
 )
 target_include_directories(hakurei_core PRIVATE "include" "../vendor" "src")
 target_link_libraries(hakurei_core stdc++fs)
-target_link_libraries(hakurei_core spdlog::spdlog GTest::GTest fmt::fmt date::date tomlplusplus::tomlplusplus)
+target_link_libraries(hakurei_core spdlog::spdlog GTest::GTest fmt::fmt date::date tomlplusplus::tomlplusplus fruit::fruit)
 
 enable_testing()
 add_executable(hakurei_core_test

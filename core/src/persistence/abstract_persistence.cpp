@@ -39,10 +39,29 @@ bool abstract_memory_persistence::append(table::row_t& row)
     return inserted;
 }
 
-persistence_factory default_registry;
-persistence_factory& get_active_persistence_registry()
+persistence_factory_registry default_registry;
+persistence_factory_registry& get_persistence_registry()
 {
     return default_registry;
+}
+
+using persistence_factory_lambda = std::unique_ptr<abstract_persistence>(
+    setting_t const&, 
+    fruit::Assisted<std::string const&>, 
+    fruit::Assisted<table::table_desc const&>);
+
+persistence_component get_persistence_component()
+{
+    return fruit::createComponent()
+        .registerFactory<persistence_factory_lambda>(
+            [](setting_t const& setting,
+               std::string const& name, table::table_desc const& desc)
+                -> std::unique_ptr<abstract_persistence>
+            {
+                return get_persistence_registry().construct(
+                    setting["persistence"]["persistence_provider"].value_or(""),
+                    setting, name, desc);
+            });
 }
 }  // namespace persistence
 }  // namespace hakurei::core

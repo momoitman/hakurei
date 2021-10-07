@@ -4,14 +4,9 @@ namespace hakurei::core
 {
 namespace model
 {
-std::shared_ptr<repository_hub> default_repository_hub;
-
-std::shared_ptr<repository_hub> get_active_repositories()
+repository_component get_repository_component()
 {
-    if (!default_repository_hub)
-        default_repository_hub = std::make_shared<repository_hub>();
-
-    return default_repository_hub;
+    return fruit::createComponent(); // repository_hub is automatically bound
 }
 }
 }  // namespace hakurei::core

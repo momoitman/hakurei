@@ -9,6 +9,7 @@
 
 #include <tuple>
 #include <memory>
+#include <fruit/fruit.h>
 
 namespace hakurei::core
 {
@@ -18,12 +19,8 @@ template<class T, class Id>
 class repository
 {
 public:
-    repository()
-        : _persistence(persistence::get_active_persistence_registry().construct(
-            get_active_setting()["persistence"]["persistence_provider"].value_or(""),
-                persistence_initializer<T>::name(),
-                persistence_initializer<T>::table_desc()
-        ))
+    repository(const setting_t& setting, persistence::persistence_factory persistence_factory)
+        : _persistence(persistence_factory(persistence_initializer<T>::name(), persistence_initializer<T>::table_desc()))
     {
         _persistence->load();
     }
@@ -87,13 +84,27 @@ private:
     std::unique_ptr<persistence::abstract_persistence> _persistence;
 };
 
-using repository_hub = 
-    std::tuple< 
-        repository<user, std::string>,
-        repository<item, std::string>,
-        repository<order, std::string>
-    >;
+class repository_hub
+{
+public:
+    INJECT(repository_hub(setting_t const& setting, persistence::persistence_factory p_factory))
+        : _user(setting, p_factory), _item(setting, p_factory), _order(setting, p_factory)
+    {}
 
-std::shared_ptr<repository_hub> get_active_repositories();
+    [[nodiscard]] repository<user, std::string>& user_repo() { return _user; }
+    [[nodiscard]] repository<item, std::string>& item_repo() { return _item; }
+    [[nodiscard]] repository<order, std::string>& order_repo() { return _order; }
+
+private:
+    repository<class user, std::string> _user;
+    repository<class item, std::string> _item;
+    repository<class order, std::string> _order;
+};
+
+using repository_component = fruit::Component<
+    fruit::Required<setting_t, persistence::persistence_factory>,
+    repository_hub>;
+
+repository_component get_repository_component();
 }
 }  // namespace hakurei::core

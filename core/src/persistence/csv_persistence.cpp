@@ -128,16 +128,17 @@ void csv_persistence::load()
     }
 }
 
-std::unique_ptr<abstract_persistence> create_csv_persistence(std::string const& name, table::table_desc const& table_desc)
+std::unique_ptr<abstract_persistence> create_csv_persistence(
+    setting_t const& setting, std::string const& name, table::table_desc const& table_desc)
 {
     return std::make_unique<csv_persistence>(
         name, table_desc, 
-        get_active_setting()["csv_persistence"]["basic_path"].value_or("./data"));
+        setting["csv_persistence"]["basic_path"].value_or("./data"));
 }
 
 bool register_csv_persistence()
 {
-    get_active_persistence_registry().register_factory("csv_persistence", create_csv_persistence);
+    //get_active_persistence_registry().register_factory("csv_persistence", create_csv_persistence);
     return true;
 }
 

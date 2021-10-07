@@ -26,12 +26,6 @@ public:
     int get_user_balance_cents(auth_token token);
 
     int deposit_money(auth_token token, int money_cents);
-
-    auth_service();
-
-private:
-    struct impl;
-    std::unique_ptr<impl> _pImpl;
 };
 }
 }  // namespace hakurei::core

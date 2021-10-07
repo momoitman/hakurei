@@ -2,10 +2,13 @@
 
 #include "table.h"
 #include "util/factory_registry.h"
+#include "util/setting.h"
 
 #include <string>
 #include <memory>
 #include <stdexcept>
+#include <functional>
+#include <fruit/fruit.h>
 
 namespace hakurei::core
 {
@@ -119,12 +122,17 @@ public:
     }
 };
 
-using persistence_factory = factory_registry<
+using persistence_factory_registry = factory_registry<
     std::unique_ptr<abstract_persistence>,
-    std::unique_ptr<abstract_persistence> (*)(std::string const&, table::table_desc const&),
-    std::string, table::table_desc
+    std::unique_ptr<abstract_persistence> (*)(setting_t const&, std::string const&, table::table_desc const&),
+    setting_t const&, std::string, table::table_desc
 >;
-persistence_factory& get_active_persistence_registry();
+persistence_factory_registry& get_persistence_registry();
+
+using persistence_factory
+    = std::function<std::unique_ptr<abstract_persistence>(std::string const&, table::table_desc const&)>;
+using persistence_component = fruit::Component<fruit::Required<setting_t>, persistence_factory>;
+persistence_component get_persistence_component();
 
 }  // namespace persistence
 }  // namespace hakurei::core
