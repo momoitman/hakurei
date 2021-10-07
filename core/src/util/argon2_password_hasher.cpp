@@ -51,7 +51,7 @@ std::string argon2_password_hasher::hash_password(std::string_view password)
 bool argon2_password_hasher::verity_password(std::string_view password, std::string_view hash)
 {
     if (hash.size() > hash_encoded_max_len - 1)
-        throw std::invalid_argument(fmt::format("hash too long:{}", hash.size()));
+        throw password_hash_error(fmt::format("hash too long:{}", hash.size()));
 
     // Think: what if we don't do this step?
     char encoded[hash_encoded_max_len];

@@ -17,6 +17,7 @@ public:
     auth_token login_user(std::string_view username, std::string_view password) override;
     void logout_user(auth_token token) override;
     model::user get_user_info(auth_token token) override;
+    std::optional<std::string> get_user_name(std::string_view id) override;
     std::optional<model::user> get_user_info(std::string_view id) override;
     void set_user_info(
         auth_token token, std::optional<std::string_view> name, std::optional<std::string_view> password,
@@ -30,9 +31,11 @@ private:
     auth_token allocate_auth_token(model::user const& u);
 
     model::repository_hub* _repos;
-    util::password_hasher* _password_hasher;
     model::user_repository* _u_repo;
+    util::password_hasher* _password_hasher;
     std::unordered_map<auth_token, model::user> _sessions; // IMPORTANT: Remember to update both user in sessions and repository!
 };
+
+
 }  // namespace service
 }  // namespace hakurei::core

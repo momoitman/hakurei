@@ -1,6 +1,5 @@
 #include "serialization.h"
 
-#include "config.h"
 #include "model/item.h"
 #include "model/user.h"
 #include "model/order.h"

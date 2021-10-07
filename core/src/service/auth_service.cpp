@@ -14,8 +14,11 @@ auth_service_impl::auth_service_impl(model::repository_hub* repos, util::passwor
     : _repos(repos), _u_repo(&repos->user_repo()), _password_hasher(hasher)
 {}
 
+// TODO impl
 std::string user_next_id(std::string const& previous);
 auth_token generate_auth_token();
+
+// TODO update objects in sessions
 
 auth_token auth_service_impl::register_user(
     std::string_view name,
@@ -23,6 +26,7 @@ auth_token auth_service_impl::register_user(
     std::string_view contact,
     std::string_view address)
 {
+    // TODO verify strings
     model::user u;
     auto existing = _u_repo->find_one_by_column(1, std::string(name), u);
     if (existing)
@@ -62,6 +66,14 @@ model::user auth_service_impl::get_user_info(auth_token token)
 {
     auto iter = _sessions.find(token);
     return iter->second.safe_copy();
+}
+
+std::optional<std::string> auth_service_impl::get_user_name(std::string_view id)
+{
+    model::user u;
+    if (!_u_repo->find_one_by_column(1, std::string(id), u))
+        return std::nullopt;
+    return u.name();
 }
 
 std::optional<model::user> auth_service_impl::get_user_info(std::string_view id)
