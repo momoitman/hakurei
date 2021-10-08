@@ -2,6 +2,7 @@
 
 #include "model/repository.h"
 #include "service/service_exceptions.h"
+#include "util/string_sanitizer.h"
 
 #include <random>
 #include <limits>
@@ -17,8 +18,7 @@ auth_service_impl::auth_service_impl(model::repository_hub* repos, util::passwor
 // TODO impl
 std::string user_next_id(std::string const& previous);
 auth_token generate_auth_token();
-
-// TODO update objects in sessions
+void verify_username(std::string_view name, model::user_repository* repo);
 
 auth_token auth_service_impl::register_user(
     std::string_view name,
@@ -26,12 +26,12 @@ auth_token auth_service_impl::register_user(
     std::string_view contact,
     std::string_view address)
 {
-    // TODO verify strings
-    model::user u;
-    auto existing = _u_repo->find_one_by_column(1, std::string(name), u);
-    if (existing)
-        throw duplication_error("User name exists!");
+    verify_username(name, _u_repo);
+    util::verify_password(password);
+    util::verify_string(contact, true);
+    util::verify_string(address, false);
 
+    model::user u;
     u = model::user(
         user_next_id(_u_repo->get_last_id().value_or("U00000")),
         std::string(name),
@@ -91,18 +91,24 @@ void auth_service_impl::set_user_info(
     auto u = get_user_info_ref(token);
     if (name)
     {
-        model::user u2;
-        auto existing = _u_repo->find_one_by_column(1, std::string(name.value()), u2);
-        if (existing)
-            throw duplication_error("User name exists!");
+        verify_username(name.value(), _u_repo);
         u->set_name(std::string(name.value()));
     }
     if (password)
+    {
+        util::verify_password(password.value());
         u->set_password_obfus(_password_hasher->hash_password(password.value()));
+    }
     if (contact)
+    {
+        util::verify_string(contact.value(), true);
         u->set_contact(std::string(contact.value()));
+    }
     if (address)
+    {
+        util::verify_string(address.value(), true);
         u->set_address(std::string(address.value()));
+    }
 
     _u_repo->save(*u);
 }
@@ -149,6 +155,15 @@ auth_token auth_service_impl::allocate_auth_token(model::user const& u)
     while (_sessions.find(t) == _sessions.end());
     _sessions.emplace(t, u);
     return t;
+}
+
+void verify_username(std::string_view name, model::user_repository* repo)
+{
+    util::verify_string(name, true);
+    model::user u;
+    auto existing = repo->find_one_by_column(1, std::string(name), u);
+    if (existing)
+        throw duplication_error("User name exists!");
 }
 
 }  // namespace service

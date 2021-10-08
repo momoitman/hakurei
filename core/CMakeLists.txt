@@ -9,6 +9,7 @@ add_library(hakurei_core
 
     "src/util/setting.cpp"
     "src/util/argon2_password_hasher.cpp"
+    "src/util/string_sanitizer.cpp"
 
     "src/persistence/abstract_persistence.cpp"
     "src/persistence/csv_persistence.cpp"

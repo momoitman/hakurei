@@ -15,6 +15,7 @@ namespace service
 class item_service
 {
 public:
+    virtual ~item_service() = default;
     virtual std::string add_item(auth_token token, std::string_view name, int price_cents, std::string_view descrption) = 0;
     virtual void set_item(auth_token token, std::string_view id,
                           std::optional<std::string_view> name, std::optional<int> price_cents,

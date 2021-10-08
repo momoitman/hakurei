@@ -3,6 +3,7 @@
 
 #include "model/repository.h"
 #include "util/password_hasher.h"
+#include <fruit/fruit.h>
 
 namespace hakurei::core
 {

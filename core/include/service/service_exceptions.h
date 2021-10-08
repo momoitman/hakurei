@@ -53,5 +53,13 @@ public:
     explicit access_denied_error(const char* string) : runtime_error(string) {}
     explicit access_denied_error(const runtime_error& rt) : runtime_error(rt) {}
 };
+
+class illegal_string_error : public std::runtime_error
+{
+public:
+    explicit illegal_string_error(const std::string& basic_string) : runtime_error(basic_string) {}
+    explicit illegal_string_error(const char* string) : runtime_error(string) {}
+    explicit illegal_string_error(const runtime_error& rt) : runtime_error(rt) {}
+};
 }
 }  // namespace hakurei::core
