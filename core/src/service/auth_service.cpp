@@ -2,6 +2,7 @@
 
 #include "model/repository.h"
 #include "service/service_exceptions.h"
+#include "service/id_generator.h"
 #include "util/string_sanitizer.h"
 
 #include <random>
@@ -15,8 +16,6 @@ auth_service_impl::auth_service_impl(model::repository_hub* repos, util::passwor
     : _repos(repos), _u_repo(&repos->user_repo()), _password_hasher(hasher)
 {}
 
-// TODO impl
-std::string user_next_id(std::string const& previous);
 auth_token generate_auth_token();
 void verify_username(std::string_view name, model::user_repository* repo);
 
@@ -33,7 +32,7 @@ auth_token auth_service_impl::register_user(
 
     model::user u;
     u = model::user(
-        user_next_id(_u_repo->get_last_id().value_or("U00000")),
+        generate_next_id(_u_repo->get_last_id().value_or("U00000")),
         std::string(name),
         _password_hasher->hash_password(password),
         std::string(address),

@@ -1,5 +1,6 @@
 #include "item_service_intl.h"
 #include "service/service_exceptions.h"
+#include "service/id_generator.h"
 #include "util/string_sanitizer.h"
 
 #include <fmt/core.h>
@@ -8,8 +9,6 @@ namespace hakurei::core
 {
 namespace service
 {
-// TODO: impl
-std::string item_next_id(std::string const& previous);
 
 item_service_impl::item_service_impl(model::repository_hub* repos, auth_service* auth_svc)
     : _repos(repos), _i_repo(&repos->item_repo()), _auth_svc(reinterpret_cast<auth_service_impl*>(auth_svc)) {}
@@ -20,7 +19,7 @@ std::string item_service_impl::add_item(auth_token token, std::string_view name,
     util::verify_string(description, false);
     auto u = _auth_svc->get_user_info_ref(token);
     model::item i(
-        item_next_id(_i_repo->get_last_id().value_or("M00001")),
+        generate_next_id(_i_repo->get_last_id().value_or("M00000")),
         std::string(name),
         price_cents,
         std::string(description),

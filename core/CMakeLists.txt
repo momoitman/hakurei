@@ -34,10 +34,15 @@ target_link_libraries(hakurei_core
 enable_testing()
 add_executable(hakurei_core_test
     "test/util/argon2_password_hasher_test.cpp"
+    "test/util/string_sanitizer_test.cpp"
+
     "test/persistence/table_test.cpp"
     "test/persistence/memory_persistence_test.cpp"
     "test/persistence/csv_persistence_test.cpp"
+
     "test/model/serialization_test.cpp"
+
+    "test/service/id_generator_test.cpp"
 )
 target_include_directories(hakurei_core_test PRIVATE "include" "../vendor" "src" "test")
 target_link_libraries(hakurei_core_test hakurei_core)
