@@ -23,6 +23,7 @@ add_library(hakurei_core
     "src/service/id_generator.cpp"
     "src/service/auth_service.cpp"
     "src/service/item_service.cpp"
+    "src/service/order_service.cpp"
 )
 target_include_directories(hakurei_core PRIVATE "include" "../vendor" "src")
 target_link_libraries(hakurei_core stdc++fs)

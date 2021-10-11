@@ -38,6 +38,18 @@ public:
         return true;
     }
 
+    void get_all(std::vector<T>& dest)
+    {
+        auto const& rows = _persistence->all_rows_table()->rows();
+        dest.resize(rows.size());
+        size_t i = 0;
+        for (auto const& [_, row] : rows)
+        {
+            serializer::deserialize(row, dest[i]);
+            i++;
+        }
+    }
+
     template <class Crit>
     void find_by_column(int column_index, Crit const& criteria, std::vector<T>& dest)
     {
@@ -64,7 +76,7 @@ public:
     size_t size() { return _persistence->size(); }
 
     bool remove(Id const& id) { return _persistence->remove(persistence::table::cell_t(id)); }
-    bool append(T& obj)
+    bool append(T const& obj)
     {
         serializer::serialize(obj, _temp_row);
         return _persistence->save(_temp_row);

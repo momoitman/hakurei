@@ -9,6 +9,14 @@ namespace hakurei::core
 {
 namespace service
 {
+namespace
+{
+void verify_price(int price_cents)
+{
+    if (price_cents <= 0)
+        throw std::invalid_argument("You can't have price that's <= 0!");
+}
+}
 
 item_service_impl::item_service_impl(model::repository_hub* repos, auth_service* auth_svc)
     : _repos(repos), _i_repo(&repos->item_repo()), _auth_svc(reinterpret_cast<auth_service_impl*>(auth_svc)) {}
@@ -54,7 +62,10 @@ void item_service_impl::set_item(auth_token token, std::string_view id,
         item.set_name(std::string(name.value()));
     }
     if (price_cents)
+    {
+        verify_price(price_cents.value());
         item.set_price_cents(price_cents.value());
+    }
     if (descrption)
     {
         util::verify_string(descrption.value(), false);
@@ -79,11 +90,34 @@ model::item item_service_impl::get_item_force(std::string_view id)
     return i;
 }
 
-std::vector<model::item> item_service_impl::search_item(std::string_view keywords, bool on_stock_only)
+void item_service_impl::search_item(auth_token token, std::string_view keywords, std::vector<model::item>& dest)
 {
     // TODO impl
-    std::vector<model::item> items;
-    return items;
+    assert(false && "not implmenetated yet!");
+}
+
+void item_service_impl::get_all_items(auth_token token, std::vector<model::item>& dest)
+{
+    _auth_svc->verify_admin_user(token);
+    _i_repo->get_all(dest);
+}
+
+void item_service_impl::get_my_items(auth_token token, std::vector<model::item>& dest)
+{
+    auto name = _auth_svc->get_user_info_ref(token)->name();
+    _i_repo->find_by_column(4, name, dest);
+}
+
+void item_service_impl::remove_item_of_user(std::string_view uid)
+{
+    std::vector<model::item> temp;
+    _i_repo->find_by_column(4, std::string(uid), temp);
+    for (auto& item : temp)
+    {
+        if (item.status() == model::item_status::on_stock)
+            item.set_status(model::item_status::deleted);
+        _i_repo->save(item); // optimize here?
+    }
 }
 
 void item_service_impl::mark_item_purchased(std::string_view id)

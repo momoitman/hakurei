@@ -69,5 +69,13 @@ public:
     explicit id_gen_failed_error(const char* string) : runtime_error(string) {}
     explicit id_gen_failed_error(const runtime_error& rt) : runtime_error(rt) {}
 };
+
+class insufficient_balance_error : public std::runtime_error
+{
+public:
+    explicit insufficient_balance_error(const std::string& basic_string) : runtime_error(basic_string) {}
+    explicit insufficient_balance_error(const char* string) : runtime_error(string) {}
+    explicit insufficient_balance_error(const runtime_error& rt) : runtime_error(rt) {}
+};
 }
 }  // namespace hakurei::core

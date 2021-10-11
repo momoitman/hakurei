@@ -28,8 +28,11 @@ public:
 
     std::optional<model::item> get_item(std::string_view id) override;
     model::item get_item_force(std::string_view id);
-    std::vector<model::item> search_item(std::string_view keywords, bool on_stock_only) override;
+    void search_item(auth_token token, std::string_view keywords, std::vector<model::item>& dest) override;
+    void get_all_items(auth_token token, std::vector<model::item>& dest) override;
+    void get_my_items(auth_token token, std::vector<model::item>& dest) override;
 
+    void remove_item_of_user(std::string_view uid);
     void mark_item_purchased(std::string_view id);
 
 private:

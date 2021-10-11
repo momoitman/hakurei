@@ -8,12 +8,18 @@
 #include <random>
 #include <limits>
 
+#include "item_service_intl.h"
+
 namespace hakurei::core
 {
 namespace service
 {
-auth_service_impl::auth_service_impl(model::repository_hub* repos, util::password_hasher* hasher)
-    : _repos(repos), _u_repo(&repos->user_repo()), _password_hasher(hasher)
+const std::string admin_user_name = "admin";
+
+auth_service_impl::auth_service_impl(
+    model::repository_hub* repos, util::password_hasher* hasher, 
+    fruit::Provider<item_service_impl> i_serv, fruit::Provider<order_service_impl> o_serv)
+    : _item_svc(i_serv), _order_svc(o_serv), _repos(repos), _u_repo(&repos->user_repo()), _password_hasher(hasher)
 {}
 
 auth_token generate_auth_token();
@@ -61,6 +67,25 @@ void auth_service_impl::logout_user(auth_token token)
     _sessions.erase(token);
 }
 
+bool auth_service_impl::is_user_admin(auth_token token)
+{
+    auto ref = get_user_info_ref(token);
+    return ref->name() == admin_user_name;
+}
+
+void auth_service_impl::get_all_users(auth_token token, std::vector<model::user>& dest)
+{
+    verify_admin_user(token);
+    _u_repo->get_all(dest);
+}
+
+void auth_service_impl::remove_user(auth_token token, std::string_view id)
+{
+    verify_admin_user(token);
+    _item_svc.get()->remove_item_of_user(id);
+    _u_repo->remove(std::string(id));
+}
+
 model::user auth_service_impl::get_user_info(auth_token token)
 {
     auto iter = _sessions.find(token);
@@ -90,6 +115,8 @@ void auth_service_impl::set_user_info(
     auto u = get_user_info_ref(token);
     if (name)
     {
+        if (is_user_admin(token))
+            throw access_denied_error("You can't change admin user's name!");
         verify_username(name.value(), _u_repo);
         u->set_name(std::string(name.value()));
     }
@@ -134,6 +161,21 @@ model::user* auth_service_impl::get_user_info_ref(auth_token token)
     if (iter == _sessions.end())
         throw invalid_token_error(std::to_string(token));
     return &iter->second;
+}
+
+void auth_service_impl::withdraw_money(auth_token token, int money_cents)
+{
+    auto u = get_user_info_ref(token);
+    if (u->balance_cents() < money_cents)
+        throw insufficient_balance_error("Money not enough!");
+    u->set_balance_cents(u->balance_cents() - money_cents);
+    _u_repo->save(*u);
+}
+
+void auth_service_impl::verify_admin_user(auth_token token)
+{
+    if (!is_user_admin(token))
+        throw access_denied_error("This operation is only available for admin user");
 }
 
 auth_token generate_auth_token()

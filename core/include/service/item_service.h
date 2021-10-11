@@ -22,7 +22,9 @@ public:
                           std::optional<std::string_view> descrption) = 0;
     virtual void remove_item(auth_token token, std::string_view id) = 0;
     virtual std::optional<model::item> get_item(std::string_view id) = 0;
-    virtual std::vector<model::item> search_item(std::string_view keywords, bool on_stock_only) = 0;
+    virtual void search_item(auth_token token, std::string_view keywords, std::vector<model::item>& dest) = 0;
+    virtual void get_all_items(auth_token token, std::vector<model::item>& dest) = 0;
+    virtual void get_my_items(auth_token token, std::vector<model::item>& dest) = 0;
 };
 
 }
