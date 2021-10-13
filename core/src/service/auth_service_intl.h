@@ -1,6 +1,8 @@
 #pragma once
 #include "service/auth_service.h"
 
+#include "item_service_intl2.h"
+
 #include "model/repository.h"
 #include "util/password_hasher.h"
 #include <fruit/fruit.h>
@@ -9,15 +11,21 @@ namespace hakurei::core
 {
 namespace service
 {
-class item_service_impl;
-class order_service_impl;
 
-class auth_service_impl : public auth_service
+class auth_service_intl : public auth_service
+{
+public:
+    virtual model::user* get_user_info_ref(auth_token token) = 0;
+    virtual void withdraw_money(auth_token token, int money_cents) = 0;
+    virtual void verify_admin_user(auth_token token) = 0;
+};
+
+class auth_service_impl : public auth_service_intl
 {
 public:
     INJECT(auth_service_impl(
         model::repository_hub* repos, util::password_hasher* hasher,
-        fruit::Provider<item_service_impl> i_serv, fruit::Provider<order_service_impl> o_serv
+        item_service_intl2* i_serv
     ));
     ~auth_service_impl() override = default;
     auth_token register_user(std::string_view name, std::string_view password, std::string_view contact, std::string_view address) override;
@@ -36,15 +44,14 @@ public:
     int get_user_balance_cents(auth_token token) override;
     int deposit_money(auth_token token, int money_cents) override;
 
-    model::user* get_user_info_ref(auth_token token);
-    void withdraw_money(auth_token token,int money_cents);
-    void verify_admin_user(auth_token token);
+    model::user* get_user_info_ref(auth_token token) override;
+    void withdraw_money(auth_token token,int money_cents) override;
+    void verify_admin_user(auth_token token) override;
 
 private:
     auth_token allocate_auth_token(model::user const& u);
 
-    fruit::Provider<item_service_impl> _item_svc;
-    fruit::Provider<order_service_impl> _order_svc;
+    item_service_intl2* _item_svc;
     model::repository_hub* _repos;
     model::user_repository* _u_repo;
     util::password_hasher* _password_hasher;

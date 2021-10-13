@@ -9,6 +9,7 @@
 #include <limits>
 
 #include "item_service_intl.h"
+#include "order_service_intl.h"
 
 namespace hakurei::core
 {
@@ -17,9 +18,9 @@ namespace service
 const std::string admin_user_name = "admin";
 
 auth_service_impl::auth_service_impl(
-    model::repository_hub* repos, util::password_hasher* hasher, 
-    fruit::Provider<item_service_impl> i_serv, fruit::Provider<order_service_impl> o_serv)
-    : _item_svc(i_serv), _order_svc(o_serv), _repos(repos), _u_repo(&repos->user_repo()), _password_hasher(hasher)
+    model::repository_hub* repos, util::password_hasher* hasher,
+    item_service_intl2* i_serv)
+    : _item_svc(i_serv), _repos(repos), _u_repo(&repos->user_repo()), _password_hasher(hasher)
 {}
 
 auth_token generate_auth_token();
@@ -82,7 +83,7 @@ void auth_service_impl::get_all_users(auth_token token, std::vector<model::user>
 void auth_service_impl::remove_user(auth_token token, std::string_view id)
 {
     verify_admin_user(token);
-    _item_svc.get()->remove_item_of_user(id);
+    _item_svc->remove_item_of_user(id);
     _u_repo->remove(std::string(id));
 }
 

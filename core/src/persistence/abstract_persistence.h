@@ -3,6 +3,7 @@
 #include "table.h"
 #include "util/factory_registry.h"
 #include "util/setting.h"
+#include "abstract_search_engine.h"
 
 #include <string>
 #include <memory>
@@ -21,6 +22,10 @@ public:
     virtual bool load(table::cell_t const& id, table::row_t& row) = 0;
     virtual void find_by_column(int column_idx, table::cell_t const& content, std::vector<table::row_t>& dest) = 0;
     virtual bool find_one_by_column(int column_idx, table::cell_t const& content, table::row_t& dest) = 0;
+    virtual void search(std::string_view keywords, std::vector<table::row_t> dest)
+    {
+        _search_eng->search(keywords, dest);
+    }
 
     virtual void save() = 0;
     virtual void load() = 0;
@@ -37,9 +42,13 @@ public:
      */
     virtual std::shared_ptr<table::table> all_rows_table() = 0;
 
-    abstract_persistence(std::string name, table::table_desc const& table_spec)
-        : _name(std::move(name)), _table_desc(table_spec) {}
-    virtual ~abstract_persistence() {};
+    abstract_persistence(std::string name, table::table_desc const& table_spec, 
+        std::unique_ptr<abstract_search_engine> search_eng)
+        : _name(std::move(name)), _table_desc(table_spec), _search_eng(std::move(search_eng))
+    {
+        _search_eng->attach_persistence(this, _table_desc.search_indexed_columns());
+    }
+    virtual ~abstract_persistence() = default;
 
     abstract_persistence& operator=(const abstract_persistence& other) = delete;
     abstract_persistence& operator=(abstract_persistence&& other) noexcept = delete;
@@ -47,6 +56,7 @@ public:
 protected:
     std::string _name;
     table::table_desc _table_desc;
+    std::unique_ptr<abstract_search_engine> _search_eng;
 };
 
 class abstract_memory_persistence : public abstract_persistence
@@ -96,8 +106,9 @@ public:
         return false;
     }
 
-    abstract_memory_persistence(std::string const& name, table::table_desc const& table_spec)
-        : abstract_persistence(name, table_spec),
+    abstract_memory_persistence(std::string const& name, table::table_desc const& table_spec, 
+        std::unique_ptr<abstract_search_engine> search_eng)
+        : abstract_persistence(name, table_spec, std::move(search_eng)),
           _table(std::make_shared<table::table>(table_spec))
     {
     }
@@ -131,7 +142,7 @@ persistence_factory_registry& get_persistence_registry();
 
 using persistence_factory
     = std::function<std::unique_ptr<abstract_persistence>(std::string const&, table::table_desc const&)>;
-using persistence_component = fruit::Component<fruit::Required<setting_t>, persistence_factory>;
+using persistence_component = fruit::Component<fruit::Required<setting_t>, persistence_factory, search_engine_factory>;
 persistence_component get_persistence_component();
 
 }  // namespace persistence

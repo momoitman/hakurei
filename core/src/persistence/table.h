@@ -33,10 +33,13 @@ public:
     [[nodiscard]] std::vector<std::string> const& column_names() const { return _column_names; }
     [[nodiscard]] std::vector<table_column_type> const& column_types() const { return _column_types; }
     [[nodiscard]] size_t size() const { return _column_types.size(); }
+    [[nodiscard]] std::vector<int>& search_indexed_columns() { return _search_indexed_columns; }
+
     table_desc(
         std::initializer_list<std::string> names,
-        std::initializer_list<table_column_type> types
-    ): _column_names(names), _column_types(types)
+        std::initializer_list<table_column_type> types,
+        std::initializer_list<int> search_indexed_columns = {}
+    ): _column_names(names), _column_types(types), _search_indexed_columns(search_indexed_columns)
     {
         if (names.size() != types.size())
             throw std::invalid_argument("Length of column names and column types don't match.");
@@ -48,6 +51,7 @@ private:
     // - Why not map? - Map is not so friendly for index-based manipulations.
     std::vector<std::string> _column_names;
     std::vector<table_column_type> _column_types;
+    std::vector<int> _search_indexed_columns;
 };
 
 using cell_t = std::variant<std::int32_t, std::int64_t, double, std::string>;

@@ -28,7 +28,7 @@ TEST(Hakurei_persistence_test, csv_persistence)
     std::filesystem::path base_path("test_data");
     std::error_code ec; // IGNORED
     std::filesystem::remove_all(base_path, ec);
-    csv_persistence pers("test", create_test_table_desc(), base_path);
+    csv_persistence pers("test", create_test_table_desc(), base_path, std::make_unique<mock_search_engine>());
 
     table::row_t row1(std::initializer_list<table::cell_t>{"10", "te\\st10\"\n\"\""});
     table::row_t row2(std::initializer_list<table::cell_t>{"5", "\"test5\""});
@@ -46,7 +46,7 @@ TEST(Hakurei_persistence_test, csv_persistence)
 )eof"
     );
 
-    csv_persistence pers2("test", create_test_table_desc(), base_path);
+    csv_persistence pers2("test", create_test_table_desc(), base_path, std::make_unique<mock_search_engine>());
     pers2.load();
     EXPECT_EQ(pers2.size(), 2);
     table::row_t row3, row4;

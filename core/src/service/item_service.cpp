@@ -1,4 +1,5 @@
 #include "item_service_intl.h"
+#include "item_service_intl2.h"
 #include "service/service_exceptions.h"
 #include "service/id_generator.h"
 #include "util/string_sanitizer.h"
@@ -18,8 +19,8 @@ void verify_price(int price_cents)
 }
 }
 
-item_service_impl::item_service_impl(model::repository_hub* repos, auth_service* auth_svc)
-    : _repos(repos), _i_repo(&repos->item_repo()), _auth_svc(reinterpret_cast<auth_service_impl*>(auth_svc)) {}
+item_service_impl::item_service_impl(model::repository_hub* repos, auth_service_intl* auth_svc)
+    : _repos(repos), _i_repo(&repos->item_repo()), _auth_svc(auth_svc) {}
 
 std::string item_service_impl::add_item(auth_token token, std::string_view name, int price_cents, std::string_view description)
 {
@@ -92,8 +93,8 @@ model::item item_service_impl::get_item_force(std::string_view id)
 
 void item_service_impl::search_item(auth_token token, std::string_view keywords, std::vector<model::item>& dest)
 {
-    // TODO impl
-    assert(false && "not implmenetated yet!");
+    // POTENTIAl SECURITY RISK: leak deleted item if a fake vector is passed in!
+    _i_repo->search(std::string(keywords), dest);
 }
 
 void item_service_impl::get_all_items(auth_token token, std::vector<model::item>& dest)
@@ -106,18 +107,6 @@ void item_service_impl::get_my_items(auth_token token, std::vector<model::item>&
 {
     auto name = _auth_svc->get_user_info_ref(token)->name();
     _i_repo->find_by_column(4, name, dest);
-}
-
-void item_service_impl::remove_item_of_user(std::string_view uid)
-{
-    std::vector<model::item> temp;
-    _i_repo->find_by_column(4, std::string(uid), temp);
-    for (auto& item : temp)
-    {
-        if (item.status() == model::item_status::on_stock)
-            item.set_status(model::item_status::deleted);
-        _i_repo->save(item); // optimize here?
-    }
 }
 
 void item_service_impl::mark_item_purchased(std::string_view id)
@@ -135,6 +124,21 @@ void item_service_impl::mark_item_purchased(std::string_view id)
 
     item.set_status(model::item_status::sold);
     _i_repo->save(item);
+}
+
+item_service_impl2::item_service_impl2(model::repository_hub* repos)
+    : _repos(repos), _i_repo(&repos->item_repo()) {}
+
+void item_service_impl2::remove_item_of_user(std::string_view uid)
+{
+    std::vector<model::item> temp;
+    _i_repo->find_by_column(4, std::string(uid), temp);
+    for (auto& item : temp)
+    {
+        if (item.status() == model::item_status::on_stock)
+            item.set_status(model::item_status::deleted);
+        _i_repo->save(item);  // optimize here?
+    }
 }
 }
 }  // namespace hakurei::core

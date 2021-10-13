@@ -12,7 +12,13 @@ namespace service
 {
 class item_service_impl;
 
-class order_service_impl : public order_service
+class order_service_intl : public order_service
+{
+    // no internal methods yet
+public:
+};
+
+class order_service_impl : public order_service_intl
 {
 public:
     INJECT(order_service_impl(

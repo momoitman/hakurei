@@ -11,8 +11,10 @@ add_library(hakurei_core
     "src/util/argon2_password_hasher.cpp"
     "src/util/string_sanitizer.cpp"
 
+    "src/persistence/abstract_search_engine.cpp"
     "src/persistence/abstract_persistence.cpp"
     "src/persistence/csv_persistence.cpp"
+    "src/persistence/basic_search_engine.cpp"
 
     "src/model/user.cpp"
     "src/model/order.cpp"
@@ -24,6 +26,7 @@ add_library(hakurei_core
     "src/service/auth_service.cpp"
     "src/service/item_service.cpp"
     "src/service/order_service.cpp"
+    "src/service/services.cpp"
 )
 target_include_directories(hakurei_core PRIVATE "include" "../vendor" "src")
 target_link_libraries(hakurei_core stdc++fs)

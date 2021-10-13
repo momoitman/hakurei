@@ -50,15 +50,20 @@ public:
         }
     }
 
+    void temp_rows_to_dest(std::vector<T>& dest)
+    {
+        dest.clear();
+        dest.resize(_temp_rows.size());
+        for (size_t i = 0; i < _temp_rows.size(); ++i)
+            serializer::deserialize(_temp_rows[i], dest[i]);
+    }
+
     template <class Crit>
     void find_by_column(int column_index, Crit const& criteria, std::vector<T>& dest)
     {
         _persistence->find_by_column(
             column_index, persistence::table::cell_t(criteria), _temp_rows);
-        dest.clear();
-        dest.resize(_temp_rows.size());
-        for (size_t i = 0; i < _temp_rows.size(); ++i)
-            serializer::deserialize(_temp_rows[i], dest[i]);
+        temp_rows_to_dest(dest);
     }
 
     template <class Crit>
@@ -70,6 +75,12 @@ public:
             return false;
         serializer::deserialize(_temp_row, dest);
         return true;
+    }
+
+    void search(std::string_view keyword, std::vector<T>& dest)
+    {
+        _persistence->search(keyword, _temp_rows);
+        temp_rows_to_dest(dest);
     }
 
     void flush() { _persistence->save(); }
@@ -118,8 +129,8 @@ private:
 };
 
 using repository_component = fruit::Component<
-    fruit::Required<setting_t, persistence::persistence_factory>,
-    repository_hub>;
+    fruit::Required<setting_t>,
+    repository_hub, persistence::persistence_factory>;
 
 repository_component get_repository_component();
 }

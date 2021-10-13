@@ -21,8 +21,9 @@ bool register_csv_persistence();
 bool _csv_persistence_registered = register_csv_persistence();
 
 csv_persistence::csv_persistence(
-    std::string const& name, table::table_desc const& table_spec, std::string const& base_path)
-    : abstract_memory_persistence(name, table_spec),
+    std::string const& name, table::table_desc const& table_spec, std::string const& base_path, 
+    std::unique_ptr<abstract_search_engine> search_eng)
+    : abstract_memory_persistence(name, table_spec, std::move(search_eng)),
       _path(std::filesystem::path(base_path) / (name + FILE_EXTENSION))
 {
     std::error_code ec;
@@ -126,14 +127,17 @@ void csv_persistence::load()
             "[pers] File I/O Error: {}; Code: {}", err.what(), err.code().value());
         //throw persistence_error(fmt::format("File I/O Error: {}; Code: {}", err.what(), err.code().value()));
     }
+
+    _search_eng->build_index();
 }
 
 std::unique_ptr<abstract_persistence> create_csv_persistence(
-    setting_t const& setting, std::string const& name, table::table_desc const& table_desc)
+    setting_t const& setting, std::string const& name, table::table_desc const& table_desc, search_engine_factory search_factory)
 {
     return std::make_unique<csv_persistence>(
         name, table_desc, 
-        setting["csv_persistence"]["basic_path"].value_or("./data"));
+        setting["csv_persistence"]["basic_path"].value_or("./data"),
+        search_factory());
 }
 
 bool register_csv_persistence()

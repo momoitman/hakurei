@@ -157,7 +157,8 @@ persistence::table::table_desc persistence_initializer<item>::table_desc()
         {"id", "name", "price_cents", "description", "seller_uid", "on_stock_time", "status"},
         {table_column_type::string, table_column_type::string, table_column_type::int32,
          table_column_type::string, table_column_type::string,
-            table_column_type::int64, table_column_type::int32});
+            table_column_type::int64, table_column_type::int32},
+        {1}); // index name only
 }
 }  // namespace model
 }  // namespace hakurei::core
