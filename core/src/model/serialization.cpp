@@ -1,5 +1,6 @@
 #include "serialization.h"
 
+#include "internal_exceptions.h"
 #include "model/item.h"
 #include "model/user.h"
 #include "model/order.h"
@@ -12,17 +13,17 @@ namespace hakurei::core
 {
 namespace model
 {
-#define DESERIALIZE_FIELD(field, type, ordi)                                                \
-    if (!std::holds_alternative<type>(row[ordi]))                                           \
-        throw std::invalid_argument("Bad cell type in cell " #ordi ", " #type " expected"); \
+#define DESERIALIZE_FIELD(field, type, ordi)                                                                      \
+    if (!std::holds_alternative<type>(row[ordi]))                                                                 \
+        throw invalid_argument_error("Failed to serialize: Bad cell type in cell " #ordi ", " #type " expected"); \
     field = std::get<type>(row[ordi]);
-#define DESERIALIZE_FIELD_CONV(field, type, conv, ordi)                                       \
-    if (!std::holds_alternative<type>(row[ordi]))                                           \
-        throw std::invalid_argument("Bad cell type in cell " #ordi ", " #type " expected"); \
+#define DESERIALIZE_FIELD_CONV(field, type, conv, ordi)                                                           \
+    if (!std::holds_alternative<type>(row[ordi]))                                                                 \
+        throw invalid_argument_error("Failed to serialize: Bad cell type in cell " #ordi ", " #type " expected"); \
     field = conv(std::get<type>(row[ordi]));
-#define DESERIALIZE_DATETIME_FIELD(field, ordi)                                             \
-    if (!std::holds_alternative<int64_t>(row[ordi]))                                       \
-        throw std::invalid_argument("Bad cell type in cell " #ordi ", uint64_t expected");  \
+#define DESERIALIZE_DATETIME_FIELD(field, ordi)                                                                  \
+    if (!std::holds_alternative<int64_t>(row[ordi]))                                                             \
+        throw invalid_argument_error("Failed to serialize: Bad cell type in cell " #ordi ", uint64_t expected"); \
     field = deserialize_datetime(std::get<int64_t>(row[ordi]));
 
 void serializer::serialize(user const& obj, persistence::table::row_t& dest)
@@ -65,7 +66,7 @@ void serializer::serialize(order const& obj, persistence::table::row_t& dest)
 void serializer::deserialize(persistence::table::row_t const& row, user& dest)
 {
     if (row.size() < 6)
-        throw std::invalid_argument("Wrong row size for type 'user': < 6");
+        throw invalid_argument_error("Failed to deserialize: Wrong row size for type 'user': < 6");
     DESERIALIZE_FIELD(dest._id, std::string, 0)
     DESERIALIZE_FIELD(dest._name, std::string, 1)
     DESERIALIZE_FIELD(dest._password_obfus, std::string, 2)
@@ -77,7 +78,7 @@ void serializer::deserialize(persistence::table::row_t const& row, user& dest)
 void serializer::deserialize(persistence::table::row_t const& row, item& dest)
 {
     if (row.size() < 7)
-        throw std::invalid_argument("Wrong row size for type 'item': < 7");
+        throw invalid_argument_error("Failed to deserialize: Wrong row size for type 'item': < 7");
     DESERIALIZE_FIELD(dest._id, std::string, 0)
     DESERIALIZE_FIELD(dest._name, std::string, 1)
     DESERIALIZE_FIELD(dest._price_cents, std::int32_t, 2)
@@ -90,7 +91,7 @@ void serializer::deserialize(persistence::table::row_t const& row, item& dest)
 void serializer::deserialize(persistence::table::row_t const& row, order& dest)
 {
     if (row.size() < 6)
-        throw std::invalid_argument("Wrong row size for type 'order': < 6");
+        throw invalid_argument_error("Failed to deserialize: Wrong row size for type 'order': < 6");
     DESERIALIZE_FIELD(dest._id, std::string, 0)
     DESERIALIZE_FIELD(dest._item_id, std::string, 1)
     DESERIALIZE_FIELD(dest._price_cents, std::int32_t, 2)
@@ -102,7 +103,7 @@ void serializer::deserialize(persistence::table::row_t const& row, order& dest)
 item_status serializer::deserialize_item_status(int8_t val)
 {
     if (val < 1 || val > 3)
-        throw std::invalid_argument(fmt::format("Invalid enum value {}", val));
+        throw invalid_argument_error(fmt::format("Failed to deserialize: Invalid enum value {}", val));
     return static_cast<item_status>(val);
 }
 

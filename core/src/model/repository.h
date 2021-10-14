@@ -90,7 +90,7 @@ public:
     bool append(T const& obj)
     {
         serializer::serialize(obj, _temp_row);
-        return _persistence->save(_temp_row);
+        return _persistence->append(_temp_row);
     }
 
     std::optional<Id> get_last_id()

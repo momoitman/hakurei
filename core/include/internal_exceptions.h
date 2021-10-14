@@ -15,6 +15,13 @@ private:
     std::string _reason;
 };
 
+class invalid_argument_error : public hakurei_error
+{
+public:
+    explicit invalid_argument_error(std::string const& reason)
+        : hakurei_error(reason) {}
+};
+
 class persistence_error : public hakurei_error
 {
 public:

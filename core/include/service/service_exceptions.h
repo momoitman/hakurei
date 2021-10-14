@@ -17,12 +17,15 @@ public:
 class invalid_token_error : public hakurei_error
 {
 public:
-    explicit invalid_token_error(const std::string& basic_string) : hakurei_error(basic_string) {}
+    explicit invalid_token_error()
+        : hakurei_error("The auth token provided is invalid!") {}
 };
 
 class invalid_credential_error : public hakurei_error
 {
 public:
+    explicit invalid_credential_error()
+        : hakurei_error("Invalid username or password!") {}
     explicit invalid_credential_error(const std::string& basic_string) : hakurei_error(basic_string) {}
 };
 
@@ -48,8 +51,7 @@ public:
 class illegal_string_error : public hakurei_error
 {
 public:
-    explicit illegal_string_error()
-        : hakurei_error("Illegal string in input!") {}
+    explicit illegal_string_error(std::string const& reason) : hakurei_error(reason) { }
 };
 
 class id_gen_failed_error : public hakurei_error

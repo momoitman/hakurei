@@ -1,5 +1,7 @@
 #pragma once
 
+#include "internal_exceptions.h"
+
 #include <cassert>
 #include <string>
 #include <cstdint>
@@ -42,9 +44,9 @@ public:
     ): _column_names(names), _column_types(types), _search_indexed_columns(search_indexed_columns)
     {
         if (names.size() != types.size())
-            throw std::invalid_argument("Length of column names and column types don't match.");
+            throw invalid_argument_error("Length of column names and column types don't match.");
         if (names.size() == 0)
-            throw std::invalid_argument("Table must contain at least 1 column.");
+            throw invalid_argument_error("Table must contain at least 1 column.");
     }
 
 private:
@@ -60,7 +62,7 @@ using row_t = std::vector<cell_t>;
 inline void check_row_valid(row_t const& row)
 {
     if (row.empty())
-        throw std::invalid_argument("Bad table row: nColumns <= 0");
+        throw invalid_argument_error("Bad table row: nColumns <= 0");
 }
 
 class table
@@ -79,7 +81,7 @@ public:
     {
         check_row_valid(row);
         if (row.size() < _desc.size())
-            throw std::invalid_argument(
+            throw invalid_argument_error(
                 fmt::format("Bad row: nColumns {} < table nColumns {}", row.size(), _desc.size())
             );
 #ifndef NDEBUG

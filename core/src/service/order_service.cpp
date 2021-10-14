@@ -34,12 +34,12 @@ void order_service_impl::place_order(auth_token token, std::string_view item_id)
 
 void order_service_impl::get_my_bought_orders(auth_token token, std::vector<model::order>& dest)
 {
-    _o_repo->find_by_column(5, _auth_svc->get_user_info_ref(token)->name(), dest);
+    _o_repo->find_by_column(5, _auth_svc->get_user_info_ref(token)->id(), dest);
 }
 
 void order_service_impl::get_my_sold_orders(auth_token token, std::vector<model::order>& dest)
 {
-    _o_repo->find_by_column(4, _auth_svc->get_user_info_ref(token)->name(), dest);
+    _o_repo->find_by_column(4, _auth_svc->get_user_info_ref(token)->id(), dest);
 }
 
 void order_service_impl::get_all_orders(auth_token token, std::vector<model::order>& dest)

@@ -5,6 +5,7 @@
 #include "persistence_test.h"
 
 using namespace hakurei::core::persistence;
+using namespace hakurei::core;
 
 TEST(Hakurei_persistence_test, table_desc)
 {
@@ -20,12 +21,12 @@ TEST(Hakurei_persistence_test, table_desc)
                 {"id"},
                 {table::table_column_type::string, table::table_column_type::string});
         },
-        std::invalid_argument);
+        invalid_argument_error);
     EXPECT_THROW(
         {
             table::table_desc desc_bad2({}, {});
         },
-        std::invalid_argument);
+        invalid_argument_error);
 }
 
 TEST(Hakurei_persistence_test, table_cell_to_string)
@@ -59,7 +60,7 @@ TEST(Hakurei_persistence_test, table)
     EXPECT_EQ(table.size(), 0);
 
     table::row_t test_row_bad1(std::initializer_list<table::cell_t>({"15"}));
-    EXPECT_THROW(table.check_row_fit(test_row_bad1), std::invalid_argument);
+    EXPECT_THROW(table.check_row_fit(test_row_bad1), invalid_argument_error);
     table::row_t test_row_bad2(std::initializer_list<table::cell_t>({"15", 15}));
     EXPECT_DEATH(table.check_row_fit(test_row_bad2), "check_row_fit");
 }

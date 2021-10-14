@@ -29,5 +29,7 @@ private:
     std::string _path;
 };
 
+bool register_csv_persistence();
+
 }  // namespace persistence
 }  // namespace hakurei::core

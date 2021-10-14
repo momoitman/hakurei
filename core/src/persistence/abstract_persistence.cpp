@@ -49,9 +49,9 @@ bool abstract_memory_persistence::append(table::row_t& row)
     return inserted;
 }
 
-persistence_factory_registry default_registry("persistence");
 persistence_factory_registry& get_persistence_registry()
 {
+    static persistence_factory_registry default_registry("persistence");
     return default_registry;
 }
 

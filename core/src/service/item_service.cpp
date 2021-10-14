@@ -15,7 +15,7 @@ namespace
 void verify_price(int price_cents)
 {
     if (price_cents <= 0)
-        throw std::invalid_argument("You can't have price that's <= 0!");
+        throw invalid_argument_error("You can't have price that's <= 0!");
 }
 }
 
@@ -87,7 +87,7 @@ model::item item_service_impl::get_item_force(std::string_view id)
 {
     model::item i;
     if (!_i_repo->load(std::string(id), i))
-        throw not_found_error(fmt::format("Item id={} not found", id));
+        throw not_found_error(fmt::format("Item with id {} not found", id));
     return i;
 }
 
@@ -105,7 +105,7 @@ void item_service_impl::get_all_items(auth_token token, std::vector<model::item>
 
 void item_service_impl::get_my_items(auth_token token, std::vector<model::item>& dest)
 {
-    auto name = _auth_svc->get_user_info_ref(token)->name();
+    auto name = _auth_svc->get_user_info_ref(token)->id();
     _i_repo->find_by_column(4, name, dest);
 }
 

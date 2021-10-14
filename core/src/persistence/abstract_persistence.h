@@ -84,7 +84,7 @@ public:
     {
         // TODO: optimize with boost::multiindex
         if (column_idx >= _table->desc().size())
-            throw std::invalid_argument("Bad column index");
+            throw invalid_argument_error("Bad column index");
         auto& rows = _table->rows();
         dest.clear();
         for (auto& [_, row] : rows)
@@ -96,7 +96,7 @@ public:
     {
         // TODO: optimize with boost::multiindex
         if (column_idx >= _table->desc().size())
-            throw std::invalid_argument("Bad column index");
+            throw invalid_argument_error("Bad column index");
         auto& rows = _table->rows();
         for (auto& [_, row] : rows)
             if (row[column_idx] == content)

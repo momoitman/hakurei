@@ -3,6 +3,7 @@
 
 #include "internal_exceptions.h"
 #include "service/services.h"
+#include "service/service_exceptions.h"
 
 #include <fstream>
 #include <filesystem>
@@ -57,22 +58,72 @@ protected:
     }
 };
 
-TEST_F(Hakurei_service_test, auth_service_test)
+TEST_F(Hakurei_service_test, services_test)
 {
     try
     {
         auto auth_svc = _ij->get<auth_service*>();
         auto token_admin_1 =
             auth_svc->register_user(
-                "admin"sv,
-                "123456"sv,
+                "test_admin"sv,
+                "123456abcd"sv,
                 "1891145141919"sv,
                 "NJU Xianlin Camp. Nanjing, Jiangsu"sv);
         EXPECT_TRUE(auth_svc->is_user_admin(token_admin_1));
+        EXPECT_THROW(auth_svc->set_user_info(token_admin_1, "admin"sv, std::nullopt, std::nullopt, std::nullopt), access_denied_error);
+        auth_svc->set_user_info(token_admin_1, std::nullopt, std::nullopt, "abcdefg"sv, std::nullopt);
+        EXPECT_EQ(auth_svc->get_user_info(token_admin_1).contact(), "abcdefg");
         auth_svc->logout_user(token_admin_1);
+        EXPECT_THROW(auth_svc->get_user_info(token_admin_1), invalid_token_error);
+
+        auto token_normal_1 =
+            auth_svc->register_user(
+                "test_normal"sv,
+                "abcd123456"sv,
+                "18925252121"sv,
+                "NJU Gulou Camp. Nanjing, Jiangsu"sv);
+
+        EXPECT_THROW(auth_svc->login_user("admin"sv, "abcdef"sv), invalid_credential_error);
+        EXPECT_THROW(auth_svc->login_user("test_admin"sv, "abcdef"sv), invalid_credential_error);
+        auto token_admin_2 = auth_svc->login_user("test_admin", "123456abcd");
+        std::vector<model::user> users_temp;
+        EXPECT_THROW(auth_svc->get_all_users(token_normal_1, users_temp), access_denied_error);
+        auth_svc->get_all_users(token_admin_2, users_temp);
+        EXPECT_EQ(users_temp.size(), 2);
+
+        EXPECT_EQ(auth_svc->get_user_name("U00001").value(), "test_admin");
+        EXPECT_EQ(auth_svc->get_user_info("U00001").value().name(), "test_admin");
+
+        EXPECT_THROW(auth_svc->deposit_money(token_admin_2, -100), invalid_argument_error);
+        auth_svc->deposit_money(token_admin_2, 1000);
+        EXPECT_EQ(auth_svc->get_user_balance_cents(token_admin_2), 1000);
+
+        auto item_svc = _ij->get<item_service*>();
+        item_svc->add_item(token_normal_1, "Item1", 150, "Descrip");
+        item_svc->set_item(token_normal_1, "M00001", "Item1_1", 100, "Descrip2");
+        EXPECT_EQ(item_svc->get_item("M00001").value().description(), "Descrip2");
+        EXPECT_THROW(item_svc->set_item(token_admin_2, "M00001", std::nullopt, std::nullopt, std::nullopt), access_denied_error);
+
+        std::vector<model::item> items_temp;
+        item_svc->get_my_items(token_normal_1, items_temp);
+        EXPECT_EQ(items_temp.size(), 1);
+        EXPECT_EQ(items_temp[0].status(), model::item_status::on_stock);
+
+        item_svc->remove_item(token_normal_1, "M00001");
+        item_svc->get_my_items(token_normal_1, items_temp);
+        EXPECT_EQ(items_temp[0].status(), model::item_status::deleted);
+
+        item_svc->add_item(token_normal_1, "Item2", 150, "Descrip");
+        item_svc->get_all_items(token_admin_2, items_temp);
+        EXPECT_EQ(items_temp.size(), 2);
+
+        item_svc->search_item(token_normal_1, "Item"sv, items_temp);
+        EXPECT_EQ(items_temp.size(), 1);
+        EXPECT_EQ(items_temp[1].name(), "Item2");
     }
     catch (hakurei_error const& err)
     {
         spdlog::critical("[EXCEPTION THROWN] {}:{}", typeid(err).name(), err.reason());
+        EXPECT_TRUE(false);
     }
 }

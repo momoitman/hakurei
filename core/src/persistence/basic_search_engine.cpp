@@ -63,8 +63,8 @@ bool kmp_search(std::string_view text, std::string_view pattern, std::vector<int
 }
 }
 
-bool register_basic_search_engine();
-bool basic_search_engine_registered = register_basic_search_engine();
+// we can't do this in a static-library env: https://www.cppstories.com/2018/02/static-vars-static-lib/
+//static bool basic_search_engine_registered = register_basic_search_engine();
 
 void basic_search_engine::attach_persistence(abstract_persistence* persistence, std::vector<int> columns)
 {
@@ -103,7 +103,7 @@ std::unique_ptr<abstract_search_engine> create_basic_search_engine(setting_t con
 
 bool register_basic_search_engine()
 {
-    //get_search_engine_registry().register_factory("basic_search_engine", create_basic_search_engine);
+    get_search_engine_registry().register_factory("basic_search_engine", create_basic_search_engine);
     return true;
 }
 }

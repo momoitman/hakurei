@@ -9,12 +9,24 @@
 #include "util/setting.h"
 #include "util/password_hasher.h"
 
+#include "persistence/csv_persistence.h"
+#include "persistence/basic_search_engine.h"
+
 namespace hakurei::core
 {
 namespace service
 {
+static bool csv_persistence_registered = persistence::register_csv_persistence();
+static bool basic_search_engine_registered = persistence::register_basic_search_engine();
+
 service_component get_services_component()
 {
+    // We have to hard-wire those registrations here
+    // because auto-registration don't work when
+    // the code is in a static library.
+    // See: https://www.cppstories.com/2018/02/static-vars-static-lib/
+    if (!csv_persistence_registered || !basic_search_engine_registered)
+        std::terminate();
     return fruit::createComponent()
         .bind<item_service_intl, item_service_impl>()
         .bind<item_service_intl2, item_service_impl2>()  // very dirty here

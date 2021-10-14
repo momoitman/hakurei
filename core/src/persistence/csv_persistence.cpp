@@ -17,8 +17,8 @@ namespace hakurei::core
 namespace persistence
 {
 const std::string FILE_EXTENSION = ".csv";
-bool register_csv_persistence();
-bool _csv_persistence_registered = register_csv_persistence();
+// we can't do this in a static-library env: https://www.cppstories.com/2018/02/static-vars-static-lib/
+//static bool _csv_persistence_registered = register_csv_persistence();
 
 csv_persistence::csv_persistence(
     std::string const& name, table::table_desc const& table_spec, std::string const& base_path, 
@@ -136,7 +136,7 @@ std::unique_ptr<abstract_persistence> create_csv_persistence(
 {
     return std::make_unique<csv_persistence>(
         name, table_desc, 
-        setting["persistence"]["csv"]["basic_path"].value_or("./data"),
+        setting["persistence"]["csv"]["base_path"].value_or("./data"),
         search_factory());
 }
 

@@ -27,5 +27,7 @@ private:
     std::vector<int> _kmp_lpz_buf;
 };
 
+bool register_basic_search_engine();
+
 }
 }  // namespace hakurei::core

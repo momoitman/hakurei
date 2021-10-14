@@ -24,7 +24,7 @@ auth_service_impl::auth_service_impl(
     item_service_intl2* i_serv)
     : _setting(setting), _item_svc(i_serv),
       _repos(repos), _u_repo(&repos->user_repo()), _password_hasher(hasher),
-      _admin_user_name((*setting)["auth"]["admin_username"].value_or("admin"))
+      _admin_user_name((*setting)["auth"]["admin_user_name"].value_or("admin"))
 {}
 
 auth_token generate_auth_token();
@@ -46,6 +46,7 @@ auth_token auth_service_impl::register_user(
         generate_next_id(_u_repo->get_last_id().value_or("U00000")),
         std::string(name),
         _password_hasher->hash_password(password),
+        std::string(contact),
         std::string(address),
         0);
     _u_repo->append(u);
@@ -58,12 +59,12 @@ auth_token auth_service_impl::login_user(std::string_view username, std::string_
     model::user u;
     auto existing = _u_repo->find_one_by_column(1, std::string(username), u);
     if (!existing)
-        throw invalid_credential_error("Invalid username or password!");
+        throw invalid_credential_error();
     if (!u.password_obfus())
-        throw invalid_credential_error("Invalid user state!");
+        throw invalid_credential_error();
 
     if (!_password_hasher->verity_password(std::string(password), u.password_obfus().value()))
-        throw invalid_credential_error("Invalid username or password!");
+        throw invalid_credential_error();
     return allocate_auth_token(u);
 }
 
@@ -93,14 +94,13 @@ void auth_service_impl::remove_user(auth_token token, std::string_view id)
 
 model::user auth_service_impl::get_user_info(auth_token token)
 {
-    auto iter = _sessions.find(token);
-    return iter->second.safe_copy();
+    return get_user_info_ref(token)->safe_copy();
 }
 
 std::optional<std::string> auth_service_impl::get_user_name(std::string_view id)
 {
     model::user u;
-    if (!_u_repo->find_one_by_column(1, std::string(id), u))
+    if (!_u_repo->find_one_by_column(0, std::string(id), u))
         return std::nullopt;
     return u.name();
 }
@@ -108,7 +108,7 @@ std::optional<std::string> auth_service_impl::get_user_name(std::string_view id)
 std::optional<model::user> auth_service_impl::get_user_info(std::string_view id)
 {
     model::user u;
-    if (!_u_repo->find_one_by_column(1, std::string(id), u))
+    if (!_u_repo->find_one_by_column(0, std::string(id), u))
         return std::nullopt;
     return u;
 }
@@ -118,7 +118,7 @@ void auth_service_impl::set_user_info(
     std::optional<std::string_view> contact, std::optional<std::string_view> address)
 {
     auto u = get_user_info_ref(token);
-    if (name)
+    if (name && u->name() != name.value())
     {
         if (is_user_admin(token))
             throw access_denied_error("You can't change admin user's name!");
@@ -152,7 +152,7 @@ int auth_service_impl::get_user_balance_cents(auth_token token)
 int auth_service_impl::deposit_money(auth_token token, int money_cents)
 {
     if (money_cents <= 0)
-        throw std::invalid_argument("money < 0");
+        throw invalid_argument_error("You can't deposit 0 or negative money.");
     auto u = get_user_info_ref(token);
     u->set_balance_cents(u->balance_cents() + money_cents);
     _u_repo->save(*u);
@@ -164,7 +164,7 @@ model::user* auth_service_impl::get_user_info_ref(auth_token token)
 {
     auto iter = _sessions.find(token);
     if (iter == _sessions.end())
-        throw invalid_token_error(std::to_string(token));
+        throw invalid_token_error();
     return &iter->second;
 }
 
@@ -198,7 +198,7 @@ auth_token auth_service_impl::allocate_auth_token(model::user const& u)
     auth_token t;
     do 
         t = generate_auth_token();
-    while (_sessions.find(t) == _sessions.end());
+    while (_sessions.find(t) != _sessions.end());
     _sessions.emplace(t, u);
     return t;
 }
@@ -209,7 +209,7 @@ void verify_username(std::string_view name, model::user_repository* repo)
     model::user u;
     auto existing = repo->find_one_by_column(1, std::string(name), u);
     if (existing)
-        throw duplication_error("User name exists!");
+        throw duplication_error("An user with the the specified user name already exists!");
 }
 
 }  // namespace service
