@@ -82,6 +82,12 @@ TEST_F(Hakurei_service_test, services_test)
                 "abcd123456"sv,
                 "18925252121"sv,
                 "NJU Gulou Camp. Nanjing, Jiangsu"sv);
+        auto token_normal_2 =
+            auth_svc->register_user(
+                "test_normal_2"sv,
+                "abcd123456"sv,
+                "18925252121"sv,
+                "NJU Gulou Camp. Nanjing, Jiangsu"sv);
 
         EXPECT_THROW(auth_svc->login_user("admin"sv, "abcdef"sv), invalid_credential_error);
         EXPECT_THROW(auth_svc->login_user("test_admin"sv, "abcdef"sv), invalid_credential_error);
@@ -89,7 +95,7 @@ TEST_F(Hakurei_service_test, services_test)
         std::vector<model::user> users_temp;
         EXPECT_THROW(auth_svc->get_all_users(token_normal_1, users_temp), access_denied_error);
         auth_svc->get_all_users(token_admin_2, users_temp);
-        EXPECT_EQ(users_temp.size(), 2);
+        EXPECT_EQ(users_temp.size(), 3);
 
         EXPECT_EQ(auth_svc->get_user_name("U00001").value(), "test_admin");
         EXPECT_EQ(auth_svc->get_user_info("U00001").value().name(), "test_admin");
@@ -120,10 +126,38 @@ TEST_F(Hakurei_service_test, services_test)
         item_svc->search_item(token_normal_1, "Item"sv, items_temp);
         EXPECT_EQ(items_temp.size(), 1);
         EXPECT_EQ(items_temp[1].name(), "Item2");
+
+        auth_svc->remove_user(token_admin_2, "U00002");
+        item_svc->get_all_items(token_admin_2, items_temp);
+        EXPECT_EQ(items_temp[0].status(), model::item_status::deleted);
+        EXPECT_EQ(items_temp[1].status(), model::item_status::deleted);
+
+        auth_svc->deposit_money(token_normal_2, 1500);
+        auto item_id1 = item_svc->add_item(token_normal_2, "Item3", 150, "Descrip");
+        auto item_id2 = item_svc->add_item(token_normal_2, "Item4", 15000, "Descrip");
+        auto item_id3 = item_svc->add_item(token_normal_2, "Item5", 150, "Descrip");
+
+        auto order_svc = _ij->get<order_service*>();
+        order_svc->place_order(token_admin_2, item_id1);
+        order_svc->place_order(token_normal_2, item_id3);
+        EXPECT_EQ(auth_svc->get_user_info(token_admin_2).balance_cents(), 850); // 1000 - 150
+        EXPECT_THROW(order_svc->place_order(token_admin_2, item_id2), insufficient_balance_error);
+
+        std::vector<model::order> orders_temp;
+        EXPECT_THROW(order_svc->get_all_orders(token_normal_2, orders_temp), access_denied_error);
+        order_svc->get_all_orders(token_admin_2, orders_temp);
+        EXPECT_EQ(orders_temp.size(), 2);
+
+        order_svc->get_my_bought_orders(token_admin_2, orders_temp);
+        EXPECT_EQ(orders_temp.size(), 1);
+        EXPECT_EQ(orders_temp[0].item_id(), item_id1);
+
+        order_svc->get_my_sold_orders(token_normal_2, orders_temp);
+        EXPECT_EQ(orders_temp[0].item_id(), item_id1);
     }
     catch (hakurei_error const& err)
     {
         spdlog::critical("[EXCEPTION THROWN] {}:{}", typeid(err).name(), err.reason());
-        EXPECT_TRUE(false);
+        ASSERT_TRUE(false);
     }
 }
