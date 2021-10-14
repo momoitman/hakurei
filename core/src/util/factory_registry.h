@@ -1,24 +1,19 @@
 #pragma once
 
+#include "internal_exceptions.h"
+
 #include <stdexcept>
 #include <unordered_map>
 
 namespace hakurei::core
 {
-class factory_not_found : std::runtime_error
-{
-public:
-    explicit factory_not_found(const char* string)
-        : runtime_error(string) {}
-    explicit factory_not_found(const std::string& basic_string)
-        : runtime_error(basic_string) {}
-};
 
 template <class T, class Factory, class... CtorArgs>
 class factory_registry
 {
 public:
-    factory_registry() = default;
+    factory_registry(std::string name)
+        : _name(std::move(name)){}
     void register_factory(std::string_view name, Factory factory)
     {
         _factories.emplace(
@@ -33,7 +28,7 @@ public:
             return construct_any(args...);
         auto it = _factories.find(name);
         if (it == _factories.end())
-            throw factory_not_found(name);
+            throw factory_not_found(name, _name);
         return (it->second)(std::forward<CtorArgs>(args)...);
     }
 
@@ -41,11 +36,12 @@ public:
     {
         auto it = _factories.begin();
         if (it == _factories.end())
-            throw factory_not_found("No any factory registered");
+            throw factory_not_found("default", _name);
         return (it->second)(std::forward<CtorArgs>(args)...);
     }
 
 private:
+    std::string _name;
     std::unordered_map<std::string, Factory> _factories;
 };
 }

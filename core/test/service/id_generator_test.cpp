@@ -6,7 +6,7 @@
 
 using namespace hakurei::core::service;
 
-TEST(Hakurei_service_test, id_generator)
+TEST(Hakurei_service_util_test, id_generator)
 {
     EXPECT_EQ(generate_next_id("U00000"), "U00001");
     EXPECT_EQ(generate_next_id("M00010"), "M00011");

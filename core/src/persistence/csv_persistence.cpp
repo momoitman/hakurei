@@ -132,17 +132,17 @@ void csv_persistence::load()
 }
 
 std::unique_ptr<abstract_persistence> create_csv_persistence(
-    setting_t const& setting, std::string const& name, table::table_desc const& table_desc, search_engine_factory search_factory)
+    setting_t const& setting, search_engine_factory search_factory, std::string const& name, table::table_desc const& table_desc)
 {
     return std::make_unique<csv_persistence>(
         name, table_desc, 
-        setting["csv_persistence"]["basic_path"].value_or("./data"),
+        setting["persistence"]["csv"]["basic_path"].value_or("./data"),
         search_factory());
 }
 
 bool register_csv_persistence()
 {
-    //get_active_persistence_registry().register_factory("csv_persistence", create_csv_persistence);
+    get_persistence_registry().register_factory("csv_persistence", create_csv_persistence);
     return true;
 }
 

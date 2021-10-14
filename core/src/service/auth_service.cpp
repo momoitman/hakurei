@@ -1,6 +1,7 @@
 #include "auth_service_intl.h"
 
 #include "model/repository.h"
+#include "util/setting.h"
 #include "service/service_exceptions.h"
 #include "service/id_generator.h"
 #include "util/string_sanitizer.h"
@@ -15,12 +16,15 @@ namespace hakurei::core
 {
 namespace service
 {
-const std::string admin_user_name = "admin";
+const std::string _admin_user_name = "admin";
 
 auth_service_impl::auth_service_impl(
+    setting_t* setting,
     model::repository_hub* repos, util::password_hasher* hasher,
     item_service_intl2* i_serv)
-    : _item_svc(i_serv), _repos(repos), _u_repo(&repos->user_repo()), _password_hasher(hasher)
+    : _setting(setting), _item_svc(i_serv),
+      _repos(repos), _u_repo(&repos->user_repo()), _password_hasher(hasher),
+      _admin_user_name((*setting)["auth"]["admin_username"].value_or("admin"))
 {}
 
 auth_token generate_auth_token();
@@ -71,7 +75,7 @@ void auth_service_impl::logout_user(auth_token token)
 bool auth_service_impl::is_user_admin(auth_token token)
 {
     auto ref = get_user_info_ref(token);
-    return ref->name() == admin_user_name;
+    return ref->name() == _admin_user_name;
 }
 
 void auth_service_impl::get_all_users(auth_token token, std::vector<model::user>& dest)
@@ -168,7 +172,7 @@ void auth_service_impl::withdraw_money(auth_token token, int money_cents)
 {
     auto u = get_user_info_ref(token);
     if (u->balance_cents() < money_cents)
-        throw insufficient_balance_error("Money not enough!");
+        throw insufficient_balance_error(u->balance_cents(), money_cents);
     u->set_balance_cents(u->balance_cents() - money_cents);
     _u_repo->save(*u);
 }

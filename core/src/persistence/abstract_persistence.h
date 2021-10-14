@@ -1,5 +1,6 @@
 #pragma once
 
+#include "internal_exceptions.h"
 #include "table.h"
 #include "util/factory_registry.h"
 #include "util/setting.h"
@@ -119,24 +120,10 @@ protected:
     std::shared_ptr<table::table> _table;
 };
 
-class persistence_error : public std::runtime_error
-{
-public:
-    explicit persistence_error(const std::string& basic_string)
-        : runtime_error(basic_string)
-    {
-    }
-
-    explicit persistence_error(const char* string)
-        : runtime_error(string)
-    {
-    }
-};
-
 using persistence_factory_registry = factory_registry<
     std::unique_ptr<abstract_persistence>,
-    std::unique_ptr<abstract_persistence> (*)(setting_t const&, std::string const&, table::table_desc const&),
-    setting_t const&, std::string, table::table_desc
+    std::unique_ptr<abstract_persistence> (*)(setting_t const&, search_engine_factory, std::string const&, table::table_desc const&),
+    setting_t const&, search_engine_factory, std::string, table::table_desc
 >;
 persistence_factory_registry& get_persistence_registry();
 

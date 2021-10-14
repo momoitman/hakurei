@@ -24,6 +24,7 @@ class auth_service_impl : public auth_service_intl
 {
 public:
     INJECT(auth_service_impl(
+        setting_t* setting,
         model::repository_hub* repos, util::password_hasher* hasher,
         item_service_intl2* i_serv
     ));
@@ -51,11 +52,13 @@ public:
 private:
     auth_token allocate_auth_token(model::user const& u);
 
+    setting_t* _setting;
     item_service_intl2* _item_svc;
     model::repository_hub* _repos;
     model::user_repository* _u_repo;
     util::password_hasher* _password_hasher;
     std::unordered_map<auth_token, model::user> _sessions; // IMPORTANT: Remember to update both user in sessions and repository!
+    std::string _admin_user_name;
 };
 
 

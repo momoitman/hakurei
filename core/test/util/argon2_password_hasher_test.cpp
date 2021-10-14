@@ -5,6 +5,7 @@
 
 using namespace std::literals;
 using namespace hakurei::core::util;
+using namespace hakurei::core;
 
 TEST(Hakurei_util_test, argon2_password)
 {

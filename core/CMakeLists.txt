@@ -47,6 +47,7 @@ add_executable(hakurei_core_test
     "test/model/serialization_test.cpp"
 
     "test/service/id_generator_test.cpp"
+    "test/service/service_intg_test.cpp"
 )
 target_include_directories(hakurei_core_test PRIVATE "include" "../vendor" "src" "test")
 target_link_libraries(hakurei_core_test hakurei_core)
