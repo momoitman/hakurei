@@ -31,7 +31,7 @@ public:
     void remove_item(auth_token token, std::string_view id) override;
     void set_item(auth_token token, std::string_view id,
                   std::optional<std::string_view> name, std::optional<int> price_cents,
-                  std::optional<std::string_view> descrption) override;
+                  std::optional<std::string_view> description) override;
 
     std::optional<model::item> get_item(std::string_view id) override;
     model::item get_item_force(std::string_view id);

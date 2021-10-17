@@ -1,65 +1,35 @@
+#include "version.h"
+
+#include "window/main_window.h"
+
 #include <DApplication>
-#include <DMainWindow>
 #include <DWidgetUtil>
 #include <DApplicationSettings>
-#include <DTitlebar>
-#include <DProgressBar>
-#include <DFontSizeManager>
-
-#include <QPropertyAnimation>
-#include <QDate>
-#include <QLayout>
 DWIDGET_USE_NAMESPACE
+
+using namespace hakurei::ui;
 
 int main(int argc, char* argv[])
 {
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-    DApplication a(argc, argv);
-    a.setOrganizationName("deepin");
-    a.setApplicationName("dtk-application");
-    a.setApplicationVersion("1.0");
-    //a.setProductIcon(QIcon(":/images/logo.svg"));
-    a.setProductName("Dtk Application");
-    a.setApplicationDescription("This is a dtk template application.");
+    DApplication hakurei_app(argc, argv);
+    hakurei_app.setOrganizationName(HAKUREI_ORG);
+    hakurei_app.setApplicationName(HAKUREI_APP_NAME);
+    hakurei_app.setApplicationVersion(HAKUREI_VERSION);
+    hakurei_app.setProductIcon(QIcon(":images/hakurei.png"));
+    hakurei_app.setProductName(HAKUREI_APP_NAME);
+    hakurei_app.setApplicationDescription(DApplication::tr("An used-item C2C platform."));
 
-    a.loadTranslator();
-    a.setApplicationDisplayName(QCoreApplication::translate("Main", "DTK Application"));
+    hakurei_app.loadTranslator();
+    hakurei_app.setApplicationDisplayName("Hakurei");
 
-    // ±£´æ³ÌÐòµÄ´°¿ÚÖ÷ÌâÉèÖÃ
+    // ä¿å­˜ç¨‹åºçš„çª—å£ä¸»é¢˜è®¾ç½®
     DApplicationSettings as;
     Q_UNUSED(as)
 
-    DMainWindow w;
-    //w.titlebar()->setIcon(QIcon(":/images/logo.svg"));
-    w.titlebar()->setTitle("Hello dtk");
-    // ÉèÖÃ±êÌâ£¬¿í¶È²»¹»»áÒþ²Ø±êÌâÎÄ×Ö
-    w.setMinimumSize(QSize(600, 200));
+    main_window mw;
+    mw.show();
+    Dtk::Widget::moveToCenter(&mw);
 
-    QWidget* cw = new QWidget(&w);
-    QVBoxLayout* layout = new QVBoxLayout(cw);
-    QDate today = QDate::currentDate();
-    DProgressBar* yearProgressBar = new DProgressBar();
-    yearProgressBar->setMaximum(today.daysInYear());
-    // °ó¶¨×ÖÌå´óÐ¡
-    DFontSizeManager::instance()->bind(yearProgressBar, DFontSizeManager::T1);
-
-    yearProgressBar->setAlignment(Qt::AlignCenter);
-    QObject::connect(yearProgressBar, &DProgressBar::valueChanged, yearProgressBar, [yearProgressBar](int value)
-                     {
-                         yearProgressBar->setFormat(QString("ÄúµÄ %1 Ê¹ÓÃ½ø¶È£º %2%").arg(QDate::currentDate().year()).arg(value * 100 / yearProgressBar->maximum()));
-                     });
-
-    layout->addWidget(yearProgressBar);
-    w.setCentralWidget(cw);
-    w.show();
-
-    auto animation = new QPropertyAnimation(yearProgressBar, "value");
-    animation->setDuration(5000);
-    animation->setStartValue(0);
-    animation->setEndValue(today.dayOfYear());
-    animation->start();
-
-    Dtk::Widget::moveToCenter(&w);
-
-    return a.exec();
+    return hakurei_app.exec();
 }

@@ -40,9 +40,8 @@ auth_token auth_service_impl::register_user(
     util::verify_password(password);
     util::verify_string(contact, true);
     util::verify_string(address, false);
-
-    model::user u;
-    u = model::user(
+    
+    model::user u(
         generate_next_id(_u_repo->get_last_id().value_or("U00000")),
         std::string(name),
         _password_hasher->hash_password(password),

@@ -51,7 +51,7 @@ void item_service_impl::remove_item(auth_token token, std::string_view id)
 
 void item_service_impl::set_item(auth_token token, std::string_view id,
                                  std::optional<std::string_view> name, std::optional<int> price_cents,
-                                 std::optional<std::string_view> descrption)
+                                 std::optional<std::string_view> description)
 {
     auto u = _auth_svc->get_user_info_ref(token);
     auto item = get_item_force(id);
@@ -67,10 +67,10 @@ void item_service_impl::set_item(auth_token token, std::string_view id,
         verify_price(price_cents.value());
         item.set_price_cents(price_cents.value());
     }
-    if (descrption)
+    if (description)
     {
-        util::verify_string(descrption.value(), false);
-        item.set_description(std::string(descrption.value()));
+        util::verify_string(description.value(), false);
+        item.set_description(std::string(description.value()));
     }
     _i_repo->save(item);
 }

@@ -15,10 +15,7 @@ add_library(hakurei_core
     "src/persistence/abstract_persistence.cpp"
     "src/persistence/csv_persistence.cpp"
     "src/persistence/basic_search_engine.cpp"
-
-    "src/model/user.cpp"
-    "src/model/order.cpp"
-    "src/model/item.cpp"
+    
     "src/model/serialization.cpp"
     "src/model/repository.cpp"
 

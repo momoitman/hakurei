@@ -13,7 +13,15 @@ find_package(DtkCore REQUIRED)
 find_package(DtkWidget REQUIRED)
 find_package(DtkGui REQUIRED)
 
-add_executable(hakurei_ui "src/ui_main.cpp")
+add_executable(hakurei_ui 
+    "src/ui_main.cpp"
+
+    "src/window/login_window.cpp"
+    "src/window/main_window.cpp"
+    "src/window/main_toolbar.cpp"
+
+    "res/resources.qrc"
+)
 target_include_directories(hakurei_ui PRIVATE "../vendor")
 
 target_include_directories(hakurei_ui PRIVATE ${DTKWIDGET_INCLUDES})

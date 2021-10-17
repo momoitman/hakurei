@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource>
+        <file>images/hakurei.png</file>
+        <file>images/reimu_tachie.png</file>
+    </qresource>
+</RCC>
