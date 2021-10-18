@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QLineEdit>
+
 #include <DApplication>
 #include <DMainWindow>
 #include <DDialog>
@@ -23,17 +25,19 @@ public:
     virtual ~register_window() override = default;
 
 public slots:
-    void resetAndShow();
-
-protected:
-    void closeEvent(QCloseEvent* event) override;
-
+    void reset_and_show();
+    void on_register_clicked();
+signals:
+    void on_register(
+        QString const& username, QString const& password,
+        QString const& contact, QString const& address
+    );
+    
 private:
     DLineEdit* _username_text;
     DLineEdit* _password_text;
     DLineEdit* _contact_text;
     DLineEdit* _address_text;
-    DPushButton* _cancel_btn;
     DSuggestButton* _ok_btn;
 };
 }  // namespace hakurei::ui

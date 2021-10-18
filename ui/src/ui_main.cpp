@@ -9,6 +9,14 @@ DWIDGET_USE_NAMESPACE
 
 using namespace hakurei::ui;
 
+#include <QVariant>
+#include <QApplication>
+#include <QDialog>
+#include <QLabel>
+#include <QLineEdit>
+#include <QSpacerItem>
+#include <QVBoxLayout>
+
 int main(int argc, char* argv[])
 {
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
@@ -28,7 +36,6 @@ int main(int argc, char* argv[])
     Q_UNUSED(as)
 
     main_window mw;
-    mw.show();
     Dtk::Widget::moveToCenter(&mw);
 
     return hakurei_app.exec();

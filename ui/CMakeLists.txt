@@ -17,6 +17,7 @@ add_executable(hakurei_ui
     "src/ui_main.cpp"
 
     "src/window/login_window.cpp"
+    "src/window/register_window.cpp"
     "src/window/main_window.cpp"
     "src/window/main_toolbar.cpp"
 

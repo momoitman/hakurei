@@ -25,7 +25,8 @@ add_library(hakurei_core
     "src/service/order_service.cpp"
     "src/service/services.cpp"
 )
-target_include_directories(hakurei_core PRIVATE "include" "../vendor" "src")
+target_include_directories(hakurei_core PRIVATE "../vendor" "src")
+target_include_directories(hakurei_core PUBLIC "include")
 target_link_libraries(hakurei_core stdc++fs)
 target_link_libraries(hakurei_core 
     spdlog::spdlog GTest::GTest fmt::fmt date::date
