@@ -8,8 +8,11 @@ using namespace core::service;
 
 main_window::main_window()
 {
-    _injector = std::make_unique<service_injector>(get_services_component);
-    _auth_svc = _injector->get<auth_service*>();
+    common_exception_handling<void>([this]()
+                                    {
+                                        _injector = std::make_unique<service_injector>(get_services_component);
+                                        _auth_svc = _injector->get<auth_service*>();
+                                    });
 
     resize(800, 600);
     titlebar()->setIcon(QIcon::fromTheme(":images/hakurei.png"));
@@ -48,8 +51,7 @@ void main_window::on_login(QString const& username, QString const& password)
     _auth_token = _auth_svc->login_user(
         username.toStdString(), password.toStdString()
     );
-    _login_window->hide();
-    _toolbar->set_enabled(true, _auth_svc->is_user_admin(_auth_token));
+    refresh_after_token_changed();
 }
 
 void main_window::on_register(QString const& username, QString const& password, QString const& contact, QString const& address)
@@ -57,8 +59,7 @@ void main_window::on_register(QString const& username, QString const& password, 
     _auth_token = _auth_svc->register_user(
         username.toStdString(), password.toStdString(), contact.toStdString(), address.toStdString()
     );
-    _login_window->hide();
-    _toolbar->set_enabled(true, _auth_svc->is_user_admin(_auth_token));
+    refresh_after_token_changed();
 }
 
 void main_window::on_logout()
@@ -76,18 +77,39 @@ void main_window::resizeEvent(QResizeEvent* event)
     _title_line->setFixedWidth(width());
 }
 
+void main_window::refresh_after_token_changed()
+{
+    _login_window->hide();
+    _toolbar->set_enabled(true, _auth_svc->is_user_admin(_auth_token));
+    show();
+}
+
 template <class func>
 void main_window::register_login_trycatch(func block)
 {
-    try
-    {
-        block();
-    } catch (invalid_credential_error& ex)
-    {
-        
-    } catch (core::hakurei_error& ex)
-    {
-        
-    }
+    common_exception_handling([this, block]()
+                              {
+                                  try
+                                  {
+                                      return block();
+                                  }
+                                  catch (invalid_credential_error& ex)
+                                  {
+                                      QMessageBox::critical(
+                                          nullptr,
+                                          QCoreApplication::tr("登录失败"),
+                                          QString(QCoreApplication::tr("用户名或密码无效：")) + QString::fromStdString(ex.reason()),
+                                          QMessageBox::Ok);
+                                  }
+                                  catch (duplication_error& ex)
+                                  {
+                                      QMessageBox::critical(
+                                          nullptr,
+                                          QCoreApplication::tr("注册失败"),
+                                          QString(QCoreApplication::tr("用户名已被占用：")) + QString::fromStdString(ex.reason()),
+                                          QMessageBox::Ok);
+                                  }
+                              });
+    
 }
 }

@@ -39,8 +39,10 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
 
 private:
-    template<class func>
+    template <class func>
     void register_login_trycatch(func block);
+
+    void refresh_after_token_changed();
 
     main_toolbar* _toolbar;
     DShadowLine* _title_line;
