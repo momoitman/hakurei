@@ -1,5 +1,6 @@
 #include "register_window.h"
 
+#include "common_exception_handle.h"
 #include <DLabel>
 
 namespace hakurei::ui
@@ -7,6 +8,8 @@ namespace hakurei::ui
 register_window::register_window(QWidget* parent): DDialog(parent)
 {
     setModal(true);
+    setVisible(false);
+    //setTitle(tr("注册 Hakurei"));
     auto layout = new QVBoxLayout;
 
     auto head_label = new DLabel(tr("注册 Hakurei"));
@@ -23,6 +26,8 @@ register_window::register_window(QWidget* parent): DDialog(parent)
     _address_text->setPlaceholderText(tr("地址"));
 
     _ok_btn = new DSuggestButton(tr("注册"));
+    _ok_btn->setAutoDefault(true);
+    _ok_btn->setDefault(true);
 
     _password_text->setEchoMode(QLineEdit::EchoMode::Password);
     
@@ -61,7 +66,13 @@ void register_window::reset_and_show()
 
 void register_window::on_register_clicked()
 {
-    // TODO String sanitize!
-    emit on_register(_username_text->text(), _password_text->text(), _contact_text->text(), _address_text->text());
+    if (_username_text->text().isEmpty() || _password_text->text().isEmpty()
+        || _contact_text->text().isEmpty() || _address_text->text().isEmpty())
+        critial_message_box("所有项均为必填。", "验证失败");
+    else if (_password_text->text().length() < 6)
+        critial_message_box("弱密码：密码至少需 6 位。", "验证失败");
+    else
+        emit on_register(_username_text->text(), _password_text->text(), 
+            _contact_text->text(), _address_text->text());
 }
 }

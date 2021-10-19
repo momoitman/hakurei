@@ -25,7 +25,7 @@ void verify_string(std::string_view str, bool strong)
 
 void verify_password(std::string_view password)
 {
-    if (password.size() <= 6)
+    if (password.size() < 6)
         throw service::illegal_string_error("Password too weak!");
     // TODO check for UpperLowerNumber?
     for (char ch : password)

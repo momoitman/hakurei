@@ -11,6 +11,7 @@ login_window::login_window(main_window* parent)
 {
     setModal(true);
     setVisible(false);
+    //setTitle(tr("登录 Hakurei"));
     setFixedSize(660, 355);
 
     //QPalette pal;
@@ -51,7 +52,9 @@ login_window::login_window(main_window* parent)
     _register_window = new register_window(this);
 
     connect(_register_btn, &DPushButton::clicked, this, &login_window::on_register_click);
-    connect(_register_btn, &DPushButton::clicked, this, &login_window::on_login_click);
+    connect(_login_btn, &DPushButton::clicked, this, &login_window::on_login_click);
+    connect(_username_text, &DLineEdit::returnPressed, this, &login_window::on_login_click);
+    connect(_password_text, &DLineEdit::returnPressed, this, &login_window::on_login_click);
     connect(_register_window, &register_window::on_register, this, &login_window::on_register);
 }
 
@@ -70,7 +73,6 @@ void login_window::on_register_click()
 
 void login_window::on_login_click()
 {
-    // TODO String sanitize!
     emit on_login(_username_text->text(), _password_text->text());
 }
 

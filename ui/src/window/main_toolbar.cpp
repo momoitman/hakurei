@@ -59,6 +59,7 @@ void main_toolbar::set_enabled(bool enabled, bool admin_enabled)
     _seller_btn->setEnabled(true);
     _customer_btn->setEnabled(true);
     _admin_btn->setEnabled(admin_enabled);
+    _admin_btn->setVisible(admin_enabled);
 
     QList<DButtonBoxButton*> list;
     list << _customer_btn << _seller_btn;

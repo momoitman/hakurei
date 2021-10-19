@@ -48,18 +48,27 @@ main_window::main_window()
 
 void main_window::on_login(QString const& username, QString const& password)
 {
-    _auth_token = _auth_svc->login_user(
-        username.toStdString(), password.toStdString()
-    );
-    refresh_after_token_changed();
+    register_login_trycatch(
+        [&]()
+        {
+            _auth_token = _auth_svc->login_user(
+                username.toStdString(), password.toStdString());
+            refresh_after_token_changed();
+        });
 }
 
-void main_window::on_register(QString const& username, QString const& password, QString const& contact, QString const& address)
+void main_window::on_register(
+    QString const& username, QString const& password,
+    QString const& contact, QString const& address)
 {
-    _auth_token = _auth_svc->register_user(
-        username.toStdString(), password.toStdString(), contact.toStdString(), address.toStdString()
-    );
-    refresh_after_token_changed();
+    register_login_trycatch(
+        [&]()
+        {
+            _auth_token = _auth_svc->register_user(
+                username.toStdString(), password.toStdString(), 
+                contact.toStdString(), address.toStdString());
+            refresh_after_token_changed();
+        });
 }
 
 void main_window::on_logout()
@@ -87,29 +96,22 @@ void main_window::refresh_after_token_changed()
 template <class func>
 void main_window::register_login_trycatch(func block)
 {
-    common_exception_handling([this, block]()
-                              {
-                                  try
-                                  {
-                                      return block();
-                                  }
-                                  catch (invalid_credential_error& ex)
-                                  {
-                                      QMessageBox::critical(
-                                          nullptr,
-                                          QCoreApplication::tr("登录失败"),
-                                          QString(QCoreApplication::tr("用户名或密码无效：")) + QString::fromStdString(ex.reason()),
-                                          QMessageBox::Ok);
-                                  }
-                                  catch (duplication_error& ex)
-                                  {
-                                      QMessageBox::critical(
-                                          nullptr,
-                                          QCoreApplication::tr("注册失败"),
-                                          QString(QCoreApplication::tr("用户名已被占用：")) + QString::fromStdString(ex.reason()),
-                                          QMessageBox::Ok);
-                                  }
-                              });
+    common_exception_handling<void>(
+        [this, block]()
+        {
+            try
+            {
+                block();
+            }
+            catch (invalid_credential_error& ex)
+            {
+                critial_message_box(gen_message_from_exception("用户名或密码无效：", ex), "登录失败");
+            }
+            catch (duplication_error& ex)
+            {
+                critial_message_box(gen_message_from_exception("用户名已被占用：", ex), "注册失败");
+            }
+        });
     
 }
 }
