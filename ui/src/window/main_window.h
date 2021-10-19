@@ -3,6 +3,9 @@
 #include "service/services.h"
 #include "main_toolbar.h"
 #include "login_window.h"
+#include "customer_page.h"
+#include "seller_page.h"
+#include "admin_page.h"
 
 #include <DApplication>
 #include <DMainWindow>
@@ -35,6 +38,10 @@ public slots:
         QString const& contact, QString const& address);
     void on_logout();
 
+    void on_switch_customer_page();
+    void on_switch_seller_page();
+    void on_switch_admin_page();
+
 protected:
     void resizeEvent(QResizeEvent* event) override;
 
@@ -49,6 +56,11 @@ private:
     DStackedWidget* _pages;
 
     login_window* _login_window;
+
+    customer_page* _customer_pg;
+    seller_page* _seller_pg;
+    admin_page* _admin_pg;
+    int _customer_pg_idx, _seller_pg_idx, _admin_pg_idx;
 
     std::unique_ptr<core::service::service_injector> _injector;
     core::service::auth_service* _auth_svc = nullptr;

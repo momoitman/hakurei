@@ -30,14 +30,16 @@ main_toolbar::main_toolbar(QWidget* parent)
     _switcher_btns->setButtonList(list, true);
 
     setFocusProxy(_customer_btn);
+    layout->addWidget(_switcher_btns, 0, Qt::AlignLeft);
+    layout->addStretch();
+
+    _status_lbl = new DLabel(this);
+    layout->addWidget(_status_lbl, 0, Qt::AlignRight);
+    layout->addSpacing(30);
 
     connect(_customer_btn, &DButtonBoxButton::toggled, this, [=](bool) { emit on_tab_customer_clicked(); });
     connect(_seller_btn, &DButtonBoxButton::toggled, this, [=](bool) { emit on_tab_seller_clicked(); });
     connect(_admin_btn, &DButtonBoxButton::toggled, this, [=](bool) { emit on_tab_admin_clicked(); });
-
-    layout->addWidget(_switcher_btns, 0, Qt::AlignLeft);
-    layout->addStretch();
-
 }
 
 void main_toolbar::set_enabled(bool enabled, bool admin_enabled)
@@ -66,5 +68,11 @@ void main_toolbar::set_enabled(bool enabled, bool admin_enabled)
     if (admin_enabled)
         list << _admin_btn;
     _switcher_btns->setButtonList(list, true);
+}
+
+void main_toolbar::set_username(QString const& username)
+{
+    _status = tr("当前登录为：") + username;
+    _status_lbl->setText(_status);
 }
 }

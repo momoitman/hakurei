@@ -2,6 +2,7 @@
 
 #include <DButtonBox>
 #include <DSearchEdit>
+#include <DLabel>
 #include <DWidget>
 
 DWIDGET_USE_NAMESPACE
@@ -17,6 +18,8 @@ public:
     ~main_toolbar() override = default;
 public slots:
     void set_enabled(bool enabled, bool admin_enabled);
+    void set_username(QString const& username);
+
 signals:
     void on_tab_customer_clicked();
     void on_tab_seller_clicked();
@@ -27,5 +30,8 @@ private:
     DButtonBoxButton* _customer_btn;
     DButtonBoxButton* _seller_btn;
     DButtonBoxButton* _admin_btn;
+    DLabel* _status_lbl;
+
+    QString _status;
 };
 }

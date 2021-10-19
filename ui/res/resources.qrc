@@ -2,5 +2,8 @@
     <qresource>
         <file>images/hakurei.png</file>
         <file>images/reimu_tachie.png</file>
+        <file>images/nju.png</file>
+        <file>images/icon_search.svg</file>
+        <file>images/icon_user.svg</file>
     </qresource>
 </RCC>

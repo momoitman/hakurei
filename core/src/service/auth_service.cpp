@@ -104,6 +104,11 @@ std::optional<std::string> auth_service_impl::get_user_name(std::string_view id)
     return u.name();
 }
 
+std::string auth_service_impl::get_user_name(auth_token token)
+{
+    return get_user_info_ref(token)->name();
+}
+
 std::optional<model::user> auth_service_impl::get_user_info(std::string_view id)
 {
     model::user u;

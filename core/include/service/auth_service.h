@@ -26,6 +26,7 @@ public:
     virtual model::user get_user_info(auth_token token) = 0;
     virtual void get_all_users(auth_token token, std::vector<model::user>& dest) = 0;
     virtual void remove_user(auth_token token, std::string_view id) = 0;
+    virtual std::string get_user_name(auth_token token) = 0;
     virtual std::optional<std::string> get_user_name(std::string_view id) = 0;
     virtual std::optional<model::user> get_user_info(std::string_view id) = 0;
     virtual void set_user_info(auth_token token, std::optional<std::string_view> name, std::optional<std::string_view> password,

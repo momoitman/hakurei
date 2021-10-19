@@ -38,6 +38,7 @@ public:
     void remove_user(auth_token token, std::string_view id) override;
     model::user get_user_info(auth_token token) override;
     std::optional<std::string> get_user_name(std::string_view id) override;
+    std::string get_user_name(auth_token token) override;
     std::optional<model::user> get_user_info(std::string_view id) override;
     void set_user_info(
         auth_token token, std::optional<std::string_view> name, std::optional<std::string_view> password,

@@ -64,6 +64,7 @@ void login_window::reset_and_show()
     _password_text->clear();
     show();
     setFocus();
+    _username_text->setFocus();
 }
 
 void login_window::on_register_click()

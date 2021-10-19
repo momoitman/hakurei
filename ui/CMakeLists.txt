@@ -21,6 +21,10 @@ add_executable(hakurei_ui
     "src/window/main_window.cpp"
     "src/window/main_toolbar.cpp"
 
+    "src/window/customer_page.cpp"
+    "src/window/seller_page.cpp"
+    "src/window/admin_page.cpp"
+
     "res/resources.qrc"
 )
 target_include_directories(hakurei_ui PRIVATE "../vendor")

@@ -32,7 +32,7 @@ inline QString gen_message_from_exception(const char* base_msg_lit, core::hakure
 }
 
 // Those exception shouldn't happen in normal run.
-template <class Ret, class Func>
+template <class Ret = void, class Func>
 Ret common_exception_handling(Func block)
 {
     try
