@@ -19,15 +19,17 @@ add_executable(hakurei_ui
     "src/window/login_window.cpp"
     "src/window/register_window.cpp"
     "src/window/main_window.cpp"
-    "src/window/main_toolbar.cpp"
 
-    "src/window/customer_page.cpp"
-    "src/window/seller_page.cpp"
-    "src/window/admin_page.cpp"
+    "src/page/customer_page.cpp"
+    "src/page/seller_page.cpp"
+    "src/page/admin_page.cpp"
+
+    "src/widget/main_toolbar.cpp"
+    "src/widget/info_bar_widget.cpp"
 
     "res/resources.qrc"
 )
-target_include_directories(hakurei_ui PRIVATE "../vendor")
+target_include_directories(hakurei_ui PRIVATE "../vendor" "src")
 
 target_include_directories(hakurei_ui PRIVATE ${DTKWIDGET_INCLUDES})
 target_link_libraries(hakurei_ui Qt5::Core Qt5::Widgets ${DtkWidget_LIBRARIES})

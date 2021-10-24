@@ -1,4 +1,3 @@
-
 #include "customer_page.h"
 
 #include <QStandardItemModel>

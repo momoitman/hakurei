@@ -1,11 +1,11 @@
 #pragma once
 
 #include "service/services.h"
-#include "main_toolbar.h"
+#include "widget/main_toolbar.h"
 #include "login_window.h"
-#include "customer_page.h"
-#include "seller_page.h"
-#include "admin_page.h"
+#include "page/customer_page.h"
+#include "page/seller_page.h"
+#include "page/admin_page.h"
 
 #include <DApplication>
 #include <DMainWindow>

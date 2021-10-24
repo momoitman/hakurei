@@ -1,7 +1,6 @@
 #pragma once
 
 #include <DButtonBox>
-#include <DSearchEdit>
 #include <DLabel>
 #include <DWidget>
 

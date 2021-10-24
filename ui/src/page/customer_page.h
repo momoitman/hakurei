@@ -30,5 +30,18 @@ private:
     core::service::auth_service* _auth_svc = nullptr;
     core::service::item_service* _item_svc = nullptr;
     core::service::order_service* _order_svc = nullptr;
+
+    class my_subpage : public DFrame
+    {
+    public:
+        explicit my_subpage(customer_page* parent);
+        ~my_subpage() override = default;
+
+    public slots:
+        void update();
+
+    private:
+
+    };
 };
 }

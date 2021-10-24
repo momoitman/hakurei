@@ -1,6 +1,6 @@
 #include "main_window.h"
 
-#include "common_exception_handle.h"
+#include "../common_exception_handle.h"
 
 namespace hakurei::ui
 {
