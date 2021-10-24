@@ -64,6 +64,8 @@ void login_window::reset_and_show()
     _password_text->clear();
     show();
     setFocus();
+    _username_text->setText("test_admin");
+    _password_text->setText("123456abcd");
     _username_text->setFocus();
 }
 

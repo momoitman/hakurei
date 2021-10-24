@@ -27,6 +27,12 @@ add_executable(hakurei_ui
     "src/widget/main_toolbar.cpp"
     "src/widget/info_bar_widget.cpp"
 
+    "src/model/item_list_model.cpp"
+    "src/model/item_list_delegate.cpp"
+    "src/model/order_table_model.cpp"
+
+    "src/model/cell_delegates.cpp"
+
     "res/resources.qrc"
 )
 target_include_directories(hakurei_ui PRIVATE "../vendor" "src")

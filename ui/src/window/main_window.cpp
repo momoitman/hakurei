@@ -24,6 +24,9 @@ main_window::main_window()
     _customer_pg = new customer_page(this);
     _seller_pg = new seller_page(this);
     _admin_pg = new admin_page(this);
+    _customer_pg->update_injector(_injector.get());
+    _seller_pg->update_injector(_injector.get());
+    _admin_pg->update_injector(_injector.get());
 
     _pages->addWidget(_customer_pg);
     _pages->addWidget(_seller_pg);
@@ -96,7 +99,8 @@ void main_window::on_logout()
 
 void main_window::on_switch_customer_page()
 {
-    _customer_pg->update();
+    if (_auth_token)
+        _customer_pg->update(_auth_token);
     _pages->setCurrentWidget(_customer_pg);
 }
 
@@ -130,6 +134,8 @@ void main_window::refresh_after_token_changed()
     _login_window->hide();
     _toolbar->set_enabled(true, _auth_svc->is_user_admin(_auth_token));
     _toolbar->set_username(QString::fromStdString(_auth_svc->get_user_name(_auth_token)));
+    _customer_pg->update(_auth_token);
+    _seller_pg->update();
     show();
 }
 

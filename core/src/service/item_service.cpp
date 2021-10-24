@@ -94,10 +94,15 @@ model::item item_service_impl::get_item_force(std::string_view id)
 void item_service_impl::search_item(auth_token token, std::string_view keywords, std::vector<model::item>& dest)
 {
     // POTENTIAl SECURITY RISK: leak deleted item if a fake vector is passed in!
-    _i_repo->search(std::string(keywords), dest);
-    for (auto it = dest.begin(); it != dest.end(); ++it)
+    if (keywords.size() == 0)
+        _i_repo->get_all(dest);
+    else
+        _i_repo->search(std::string(keywords), dest);
+    for (auto it = dest.begin(); it != dest.end();)
         if (it->status() != model::item_status::on_stock)
             it = dest.erase(it);
+        else
+            ++it;
 }
 
 void item_service_impl::get_all_items(auth_token token, std::vector<model::item>& dest)

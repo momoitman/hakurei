@@ -1,6 +1,9 @@
 #pragma once
 
 #include "widget/info_bar_widget.h"
+#include "model/item_list_model.h"
+#include "model/item_list_delegate.h"
+#include "model/order_table_model.h"
 #include <service/services.h>
 
 #include <DListView>
@@ -9,6 +12,7 @@
 #include <DFrame>
 #include <DTableView>
 #include <DSearchEdit>
+#include <QTimer>
 
 DWIDGET_USE_NAMESPACE;
 
@@ -28,7 +32,7 @@ public:
 
 public slots:
     void update_injector(core::service::service_injector* ij);
-    void update();
+    void update(core::service::auth_token token);
 
 private slots:
     void on_switch_subpage(QModelIndex const& qidx);
@@ -41,10 +45,14 @@ private:
     core::service::auth_service* _auth_svc = nullptr;
     core::service::item_service* _item_svc = nullptr;
     core::service::order_service* _order_svc = nullptr;
+    core::service::auth_token _token = 0;
 
     customer_subpages::my_subpage* _my_subpage;
     customer_subpages::discover_subpage* _discover_subpage;
     static constexpr int _my_subpage_idx = 0, _discover_subpage_idx = 1;
+
+    friend class customer_subpages::my_subpage;
+    friend class customer_subpages::discover_subpage;
 };
 
 namespace customer_subpages
@@ -57,11 +65,17 @@ public:
     ~my_subpage() override = default;
 
 public slots:
-    void update();
+    void update(core::service::auth_token token);
 
 private:
+    void resizeEvent(QResizeEvent* event) override;
+    customer_page *_pg;
     info_bar_widget* _info_bar;
-    DTableView* _my_order_table;
+
+    QTableView* _my_orders_table;
+    model::order_table_model* _my_orders_model;
+
+    std::vector<order> _my_orders;
 };
 
 class discover_subpage : public DFrame
@@ -72,11 +86,19 @@ public:
     ~discover_subpage() override = default;
 
 public slots:
-    void update();
+    void search_text_changed();
+    void update(core::service::auth_token token);
 
 private:
+    void re_search();
+
+    customer_page *_pg;
     DSearchEdit* _search_edit;
-    DTableView* _search_result;
+    std::vector<item> _items;
+    QTimer* _throttler;
+
+    QListView* _search_result;
+    model::item_list_model* _my_order_model;
 };
 }
 }

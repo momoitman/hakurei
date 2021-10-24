@@ -4,6 +4,7 @@
 #include "service/service_exceptions.h"
 
 #include <DMessageBox>
+#include <QCoreApplication>
 #include <exception>
 
 namespace hakurei::ui

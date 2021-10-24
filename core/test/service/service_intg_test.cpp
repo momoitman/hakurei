@@ -48,13 +48,14 @@ protected:
         Test::SetUp();
 
         make_setting();
+        clean_data();
         _ij = std::make_unique<service_injector>(get_services_component);
     }
 
     void TearDown() override
     {
         Test::TearDown();
-        clean_data();
+        
     }
 };
 
