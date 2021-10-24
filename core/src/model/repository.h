@@ -76,7 +76,7 @@ public:
         serializer::deserialize(_temp_row, dest);
         return true;
     }
-
+    
     void search(std::string_view keyword, std::vector<T>& dest)
     {
         _persistence->search(keyword, _temp_rows);

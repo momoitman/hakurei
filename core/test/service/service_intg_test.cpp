@@ -125,7 +125,7 @@ TEST_F(Hakurei_service_test, services_test)
 
         item_svc->search_item(token_normal_1, "Item"sv, items_temp);
         EXPECT_EQ(items_temp.size(), 1);
-        EXPECT_EQ(items_temp[1].name(), "Item2");
+        EXPECT_EQ(items_temp[0].name(), "Item2");
 
         auth_svc->remove_user(token_admin_2, "U00002");
         item_svc->get_all_items(token_admin_2, items_temp);

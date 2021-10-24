@@ -95,6 +95,9 @@ void item_service_impl::search_item(auth_token token, std::string_view keywords,
 {
     // POTENTIAl SECURITY RISK: leak deleted item if a fake vector is passed in!
     _i_repo->search(std::string(keywords), dest);
+    for (auto it = dest.begin(); it != dest.end(); ++it)
+        if (it->status() != model::item_status::on_stock)
+            it = dest.erase(it);
 }
 
 void item_service_impl::get_all_items(auth_token token, std::vector<model::item>& dest)

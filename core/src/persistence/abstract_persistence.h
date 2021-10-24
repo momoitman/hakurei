@@ -23,7 +23,7 @@ public:
     virtual bool load(table::cell_t const& id, table::row_t& row) = 0;
     virtual void find_by_column(int column_idx, table::cell_t const& content, std::vector<table::row_t>& dest) = 0;
     virtual bool find_one_by_column(int column_idx, table::cell_t const& content, table::row_t& dest) = 0;
-    virtual void search(std::string_view keywords, std::vector<table::row_t> dest)
+    virtual void search(std::string_view keywords, std::vector<table::row_t>& dest)
     {
         _search_eng->search(keywords, dest);
     }
