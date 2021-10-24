@@ -1,5 +1,7 @@
 #include "main_toolbar.h"
 
+#include <QBoxLayout>
+
 namespace hakurei::ui
 {
 main_toolbar::main_toolbar(QWidget* parent)

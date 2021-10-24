@@ -46,9 +46,9 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
 
 private:
+    // Implemented and specialized in .cpp
     template <class func>
     void register_login_trycatch(func block);
-
     void refresh_after_token_changed();
 
     main_toolbar* _toolbar;
@@ -60,7 +60,6 @@ private:
     customer_page* _customer_pg;
     seller_page* _seller_pg;
     admin_page* _admin_pg;
-    int _customer_pg_idx, _seller_pg_idx, _admin_pg_idx;
 
     std::unique_ptr<core::service::service_injector> _injector;
     core::service::auth_service* _auth_svc = nullptr;

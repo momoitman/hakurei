@@ -5,5 +5,6 @@
         <file>images/nju.png</file>
         <file>images/icon_search.svg</file>
         <file>images/icon_user.svg</file>
+        <file>images/icon_user_2.png</file>
     </qresource>
 </RCC>

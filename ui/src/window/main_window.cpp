@@ -25,9 +25,9 @@ main_window::main_window()
     _seller_pg = new seller_page(this);
     _admin_pg = new admin_page(this);
 
-    _customer_pg_idx = _pages->addWidget(_customer_pg);
-    _seller_pg_idx = _pages->addWidget(_seller_pg);
-    _admin_pg_idx = _pages->addWidget(_admin_pg);
+    _pages->addWidget(_customer_pg);
+    _pages->addWidget(_seller_pg);
+    _pages->addWidget(_admin_pg);
 
     _toolbar = new main_toolbar(this);
     _toolbar->setFocusPolicy(Qt::TabFocus);
@@ -97,13 +97,13 @@ void main_window::on_logout()
 void main_window::on_switch_customer_page()
 {
     _customer_pg->update();
-    _pages->setCurrentIndex(_customer_pg_idx);
+    _pages->setCurrentWidget(_customer_pg);
 }
 
 void main_window::on_switch_seller_page()
 {
     _seller_pg->update();
-    _pages->setCurrentIndex(_seller_pg_idx);
+    _pages->setCurrentWidget(_seller_pg);
 }
 
 void main_window::on_switch_admin_page()
@@ -114,7 +114,7 @@ void main_window::on_switch_admin_page()
             if (_auth_token && _auth_svc && _auth_svc->is_user_admin(_auth_token))
             {
                 _admin_pg->update();
-                _pages->setCurrentIndex(_admin_pg_idx);
+                _pages->setCurrentWidget(_admin_pg);
             }
         });
 }
