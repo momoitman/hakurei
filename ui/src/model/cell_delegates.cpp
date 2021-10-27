@@ -1,6 +1,6 @@
 #include "cell_delegates.h"
 
-#include <QDateTime>
+#include "util/str_util.h"
 
 namespace hakurei::ui
 {
@@ -8,12 +8,12 @@ namespace model
 {
 QString two_precision_cell_delegate::displayText(const QVariant& value, const QLocale& locale) const
 {
-    return QString::number(value.toDouble(), 'f', 2);
+    return to_string_price(value.toDouble());
 }
 
 QString datetime_cell_delegate::displayText(const QVariant& value, const QLocale& locale) const
 {
-    return QDateTime::fromMSecsSinceEpoch(value.toULongLong()).toString("yyyy-MM-dd hh:mm:ss");
+    return to_string_datetime(value.toULongLong());
 }
 }
 }  // namespace hakurei::ui

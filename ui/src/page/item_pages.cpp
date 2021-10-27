@@ -1,0 +1,80 @@
+#include "item_pages.h"
+
+#include "util/str_util.h"
+#include <QScrollArea>
+#include <QBoxLayout>
+
+namespace hakurei::ui
+{
+item_customer_page::item_customer_page(QWidget* parent)
+    : DDialog(parent)
+{
+    setModal(true);
+    setMinimumWidth(400);
+    resize(400, 600);
+    setContentsMargins(20, 20, 20, 20);
+
+    auto vlayout = new QVBoxLayout(this);
+
+    _purchase_button = new DSuggestButton(tr("购买"), this);
+    _delete_button = new DWarningButton(this);
+    _delete_button->setText(tr("删除"));
+    vlayout->addWidget(_purchase_button);
+    vlayout->addWidget(_delete_button);
+
+    _name_label = new DLabel(this);
+    _price_label = new DLabel(this);
+    _desc_label = new DLabel(this);
+
+    _name_label->setStyleSheet("font: 28px");
+    _price_label->setStyleSheet("font: 23px");
+    _desc_label->setStyleSheet("font: 12px");
+
+    _price_label->setAlignment(Qt::AlignRight);
+    _name_label->setWordWrap(true);
+    _desc_label->setWordWrap(true);
+
+    vlayout->addWidget(_name_label);
+    vlayout->addWidget(_price_label);
+
+    QScrollArea* scroll = new QScrollArea(this);
+    scroll->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    scroll->setWidget(_desc_label);
+    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    vlayout->addWidget(scroll);
+
+    // code specified for DDialog
+    QWidget* mainContent = new QWidget;
+    mainContent->setLayout(vlayout);
+    addContent(mainContent);
+
+    connect(_purchase_button, &DSuggestButton::clicked, [&](){ emit on_purchase_item(_item_id); });
+    connect(_delete_button, &DSuggestButton::clicked, [&](){ emit on_delete_item(_item_id); });
+}
+
+void item_customer_page::update(core::model::item const& item, bool purchase_enabled, bool delete_enabled)
+{
+    _item_id = item.id();
+    _name_label->setText(QString::fromStdString(item.name()));
+    _price_label->setText(arg_price_cents(tr("￥%1"), item.price_cents()));
+    _desc_label->setText(
+        tr("上架于 %1\n%2")
+            .arg(to_string_datetime(item.on_stock_time()))
+            .arg(QString::fromStdString(item.description()))
+    );
+
+    _purchase_button->setVisible(purchase_enabled);
+    _purchase_button->setEnabled(purchase_enabled);
+    _delete_button->setVisible(delete_enabled);
+    _delete_button->setEnabled(delete_enabled);
+}
+
+item_seller_page::item_seller_page(QWidget* parent)
+{
+}
+
+void item_seller_page::update(std::string item_id, bool delete_enabled, bool editing_enabled)
+{
+}
+}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model/item.h"
+#include "model/simple_model_holder.h"
 #include <QAbstractItemModel>
 #include <vector>
 
@@ -9,10 +10,11 @@ namespace hakurei::ui
 using namespace core::model;
 namespace model
 {
-class item_list_model : public QAbstractListModel
+class item_list_model : public QAbstractListModel, public simple_model_holder<item, item_list_model>
 {
     Q_OBJECT
 public:
+    friend class simple_model_holder<item, item_list_model>;
     explicit item_list_model(QWidget* parent);
     ~item_list_model() override = default;
     int rowCount(const QModelIndex& parent) const override { return _items.size(); }
@@ -26,41 +28,46 @@ public:
         return &_items[row];
     }
 
-    void populate(std::vector<item> const& src_copy)
+    [[nodiscard]] const item* get_item(const QModelIndex& index) const
+    {
+        return get_item(index.row());
+    }
+
+    void populate2(std::vector<item> const& src_copy)
     {
         if (!_items.empty())
         {
-            emit beginRemoveRows(QModelIndex(), 0, _items.size() - 1);
+            beginRemoveRows(QModelIndex(), 0, _items.size() - 1);
             _items.clear();
-            emit endRemoveRows();
+            endRemoveRows();
         }
 
         if (!src_copy.empty())
         {
-            emit beginInsertRows(QModelIndex(), 0, src_copy.size() - 1);
+            beginInsertRows(QModelIndex(), 0, src_copy.size() - 1);
             _items = src_copy;
-            emit endInsertRows();
+            endInsertRows();
         }
     }
-    void populate(std::vector<item>&& src_move)
+
+    void populate2(std::vector<item>&& src_move)
     {
         if (!_items.empty())
         {
-            emit beginRemoveRows(QModelIndex(), 0, _items.size() - 1);
+            this->beginRemoveRows(QModelIndex(), 0, _items.size() - 1);
             _items.clear();
-            emit endRemoveRows();
+            this->endRemoveRows();
         }
 
         if (!src_move.empty())
         {
-            emit beginInsertRows(QModelIndex(), 0, src_move.size() - 1);
+            this->beginInsertRows(QModelIndex(), 0, src_move.size() - 1);
             _items = std::move(src_move);
-            emit endInsertRows();
+            this->endInsertRows();
         }
     }
-
-private:
-    std::vector<item> _items;
+public:
+    //std::vector<item> _items;
 };
 }
 

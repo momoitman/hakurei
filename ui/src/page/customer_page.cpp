@@ -2,6 +2,7 @@
 
 #include "common_exception_handle.h"
 #include "model/cell_delegates.h"
+#include "util/str_util.h"
 
 #include <QStandardItemModel>
 #include <QHeaderView>
@@ -42,6 +43,9 @@ customer_page::customer_page(QWidget* parent)
 
     _page_selector->setCurrentIndex(model->index(0, 0));
     _pages->setCurrentIndex(0);
+
+    _item_page = new item_customer_page(this);
+    _item_page->setVisible(false);
     
     connect(_page_selector->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &customer_page::on_switch_subpage);
@@ -87,6 +91,24 @@ void customer_page::on_switch_subpage(QModelIndex const& qidx)
         _discover_subpage->update(_token);
         _pages->setCurrentWidget(_discover_subpage);
     }
+}
+
+void customer_page::show_item_by_id(std::string_view id, bool purchase_enabled, bool delete_enabled)
+{
+    common_exception_handling(
+        [&]()
+        {
+            auto i = _item_svc->get_item(id);
+            if (!i.has_value())
+                return;
+            show_item(&i.value(), purchase_enabled, delete_enabled);
+        });
+}
+
+void customer_page::show_item(const item* item, bool purchase_enabled, bool delete_enabled)
+{
+    _item_page->update(*item, purchase_enabled, delete_enabled);
+    _item_page->show();
 }
 
 namespace customer_subpages
@@ -150,14 +172,19 @@ void my_subpage::update(core::service::auth_token token)
             _info_bar->updateUsername(QString::fromStdString(_pg->_auth_svc->get_user_name(token)));
             _pg->_auth_svc->get_user_name(token);
 
+
+            int balance_cents = _pg->_auth_svc->get_user_balance_cents(token);
             int total_cents = std::accumulate(
                 _my_orders.begin(),
                 _my_orders.end(),
                 0,
                 [](int las, order const& it) { return las + it.price_cents(); });
-            _info_bar->updateContent(tr("您在本平台有 %1 笔订单，总消费金额 ￥%2.")
-                                         .arg(_my_orders.size())
-                                         .arg(total_cents / 100.0, 0, 'f', 2));
+            auto msg = tr("您帐户的余额为 %3，您在本平台有 %1 笔订单，总消费金额 ￥%2.")
+                .arg(_my_orders.size());
+            msg = arg_price_cents(msg, total_cents);
+            msg = arg_price_cents(msg, balance_cents);
+            
+            _info_bar->updateContent(msg);
             _my_orders_model->populate(_my_orders);
         });
 }
@@ -191,6 +218,7 @@ discover_subpage::discover_subpage(customer_page* parent)
     _throttler = new QTimer(this);
     connect(_search_edit, &DSearchEdit::textChanged, this, &discover_subpage::search_text_changed);
     connect(_throttler, &QTimer::timeout, this, &discover_subpage::re_search);
+    connect(_search_result, &QListView::doubleClicked, this, &discover_subpage::show_item);
 }
 
 void discover_subpage::search_text_changed()
@@ -201,6 +229,13 @@ void discover_subpage::search_text_changed()
 void discover_subpage::update(core::service::auth_token token)
 {
     re_search();
+}
+
+void discover_subpage::show_item(const QModelIndex& index)
+{
+    auto item = _my_order_model->get_item(index);
+    if (item != nullptr)
+        emit _pg->show_item(item, true, false);
 }
 
 void discover_subpage::re_search()
