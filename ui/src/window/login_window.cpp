@@ -49,13 +49,13 @@ login_window::login_window(main_window* parent)
     head_label->adjustSize();
     icon_label->resize(200, 315);
 
-    _register_window = new register_window(this);
+    _register_window = new register_or_edit_window(this);
 
     connect(_register_btn, &DPushButton::clicked, this, &login_window::on_register_click);
     connect(_login_btn, &DPushButton::clicked, this, &login_window::on_login_click);
     connect(_username_text, &DLineEdit::returnPressed, this, &login_window::on_login_click);
     connect(_password_text, &DLineEdit::returnPressed, this, &login_window::on_login_click);
-    connect(_register_window, &register_window::on_register, this, &login_window::on_register);
+    connect(_register_window, &register_or_edit_window::on_register, this, &login_window::on_register);
 }
 
 void login_window::reset_and_show()

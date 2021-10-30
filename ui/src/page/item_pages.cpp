@@ -7,7 +7,7 @@
 
 namespace hakurei::ui
 {
-item_customer_page::item_customer_page(QWidget* parent)
+item_show_page::item_show_page(QWidget* parent)
     : DDialog(parent)
 {
     setModal(true);
@@ -25,10 +25,12 @@ item_customer_page::item_customer_page(QWidget* parent)
     vlayout->addWidget(_purchase_button);
     vlayout->addWidget(_delete_button);
 
+    _id_label = new DLabel(this);
     _name_label = new DLabel(this);
     _price_label = new DLabel(this);
     _desc_label = new DLabel(this);
 
+    _id_label->setStyleSheet("font: 10px");
     _name_label->setStyleSheet("font: 28px");
     _price_label->setStyleSheet("font: 23px");
     _desc_label->setStyleSheet("font: 12px");
@@ -36,29 +38,34 @@ item_customer_page::item_customer_page(QWidget* parent)
     _price_label->setAlignment(Qt::AlignRight);
     _name_label->setWordWrap(true);
     _desc_label->setWordWrap(true);
+    _desc_label->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
+    vlayout->addWidget(_id_label);
     vlayout->addWidget(_name_label);
     vlayout->addWidget(_price_label);
 
-    QScrollArea* scroll = new QScrollArea(this);
+    auto scroll = new QScrollArea(this);
+    scroll->setWidgetResizable(true);
     scroll->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    _desc_label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     scroll->setWidget(_desc_label);
     scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     vlayout->addWidget(scroll);
 
     // code specified for DDialog
-    QWidget* mainContent = new QWidget;
+    QWidget* mainContent = new QWidget(this);
     mainContent->setLayout(vlayout);
     addContent(mainContent);
 
-    connect(_purchase_button, &DSuggestButton::clicked, this, &item_customer_page::on_purchase_click);
+    connect(_purchase_button, &DSuggestButton::clicked, this, &item_show_page::on_purchase_click);
     connect(_delete_button, &DSuggestButton::clicked, [&](){ emit on_delete_item(_item_id); });
 }
 
-void item_customer_page::update(core::model::item const& item, bool purchase_enabled, bool delete_enabled)
+void item_show_page::update(core::model::item const& item, bool purchase_visible, bool purchase_enabled, bool delete_enabled)
 {
     _item_id = item.id();
+    _id_label->setText(QString::fromStdString(_item_id));
     _name_label->setText(QString::fromStdString(item.name()));
     _price_label->setText(arg_price_cents(tr("￥%1"), item.price_cents()));
     _desc_label->setText(
@@ -67,13 +74,13 @@ void item_customer_page::update(core::model::item const& item, bool purchase_ena
             .arg(QString::fromStdString(item.description()))
     );
 
-    _purchase_button->setVisible(purchase_enabled);
+    _purchase_button->setVisible(purchase_visible);
     _purchase_button->setEnabled(purchase_enabled);
     _delete_button->setVisible(delete_enabled);
     _delete_button->setEnabled(delete_enabled);
 }
 
-void item_customer_page::on_purchase_click()
+void item_show_page::on_purchase_click()
 {
     auto conf = QMessageBox::question(
         this,

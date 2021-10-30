@@ -20,15 +20,15 @@ namespace hakurei::ui
  * But I just don't have so much time
  * So i made them simply dialogs.
  */
-class item_customer_page : public DDialog
+class item_show_page : public DDialog
 {
     Q_OBJECT
 public:
-    explicit item_customer_page(QWidget* parent);
-    ~item_customer_page() override = default;
+    explicit item_show_page(QWidget* parent);
+    ~item_show_page() override = default;
 
 public slots:
-    void update(core::model::item const& item, bool purchase_enabled, bool delete_enabled);
+    void update(core::model::item const& item, bool purchase_visible, bool purchase_enabled, bool delete_enabled);
 signals:
     void on_purchase_item(std::string item_id);
     void on_delete_item(std::string item_id);
@@ -39,7 +39,7 @@ private:
     bool _purchase_enabled, _delete_enabled;
     std::string _item_id;
 
-    DLabel *_name_label, *_price_label, *_desc_label;
+    DLabel *_id_label, *_name_label, *_price_label, *_desc_label;
     DSuggestButton* _purchase_button;
     DWarningButton* _delete_button;
 };

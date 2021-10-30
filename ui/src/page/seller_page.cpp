@@ -28,11 +28,13 @@ void seller_page::update_injector(core::service::service_injector* ij)
         _item_svc = ij->get<item_service*>();
         _order_svc = ij->get<order_service*>();
     }
-
-    // TODO: refresh UI data
 }
 
-void seller_page::update()
+void seller_page::update(core::service::auth_token token)
 {
+    _token = token;
+    if (!_token)
+        return;
+
 }
 }

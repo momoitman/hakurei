@@ -106,7 +106,8 @@ void main_window::on_switch_customer_page()
 
 void main_window::on_switch_seller_page()
 {
-    _seller_pg->update();
+    if (_auth_token)
+        _seller_pg->update(_auth_token);
     _pages->setCurrentWidget(_seller_pg);
 }
 
@@ -135,7 +136,7 @@ void main_window::refresh_after_token_changed()
     _toolbar->set_enabled(true, _auth_svc->is_user_admin(_auth_token));
     _toolbar->set_username(QString::fromStdString(_auth_svc->get_user_name(_auth_token)));
     _customer_pg->update(_auth_token);
-    _seller_pg->update();
+    _seller_pg->update(_auth_token);
     show();
 }
 

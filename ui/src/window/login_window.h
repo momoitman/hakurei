@@ -1,6 +1,6 @@
 #pragma once
 
-#include "register_window.h"
+#include "register_or_edit_window.h"
 
 #include <DApplication>
 #include <DMainWindow>
@@ -47,7 +47,7 @@ private:
     DPushButton* _register_btn;
     DSuggestButton* _login_btn;
 
-    register_window* _register_window;
+    register_or_edit_window* _register_window;
 };
 }
 

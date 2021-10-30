@@ -20,12 +20,15 @@ public:
 
 public slots:
     void update_injector(core::service::service_injector* ij);
-    void update();
+    void update(core::service::auth_token token);
 
 private:
     core::service::service_injector* _ij = nullptr;
     core::service::auth_service* _auth_svc = nullptr;
     core::service::item_service* _item_svc = nullptr;
     core::service::order_service* _order_svc = nullptr;
+    core::service::auth_token _token = 0;
+
+
 };
 }

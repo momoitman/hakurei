@@ -45,11 +45,11 @@ public:
         // Password not present
     }
 
-    [[nodiscard]] std::string id() const { return _id; } 
-    [[nodiscard]] std::string name() const { return _name; }
+    [[nodiscard]] std::string const& id() const { return _id; } 
+    [[nodiscard]] std::string const& name() const { return _name; }
     [[nodiscard]] std::optional<std::string> password_obfus() const { return _password_obfus; }
-    [[nodiscard]] std::string contact() const { return _contact; }
-    [[nodiscard]] std::string address() const { return _address; }
+    [[nodiscard]] std::string const& contact() const { return _contact; }
+    [[nodiscard]] std::string const& address() const { return _address; }
     [[nodiscard]] int balance_cents() const { return _balance_cents; }
 
     void set_name(const std::string& name) { _name = name; }

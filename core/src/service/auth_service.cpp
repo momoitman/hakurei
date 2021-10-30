@@ -112,6 +112,7 @@ std::string auth_service_impl::get_user_name(auth_token token)
 std::optional<model::user> auth_service_impl::get_user_info(std::string_view id)
 {
     model::user u;
+    // TODO: security risk: leaking privacy
     if (!_u_repo->find_one_by_column(0, std::string(id), u))
         return std::nullopt;
     return u;
