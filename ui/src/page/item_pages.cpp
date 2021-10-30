@@ -3,6 +3,7 @@
 #include "util/str_util.h"
 #include <QScrollArea>
 #include <QBoxLayout>
+#include <QMessageBox>
 
 namespace hakurei::ui
 {
@@ -13,8 +14,10 @@ item_customer_page::item_customer_page(QWidget* parent)
     setMinimumWidth(400);
     resize(400, 600);
     setContentsMargins(20, 20, 20, 20);
+    hide();
 
     auto vlayout = new QVBoxLayout(this);
+    vlayout->setSpacing(5);
 
     _purchase_button = new DSuggestButton(tr("购买"), this);
     _delete_button = new DWarningButton(this);
@@ -49,7 +52,7 @@ item_customer_page::item_customer_page(QWidget* parent)
     mainContent->setLayout(vlayout);
     addContent(mainContent);
 
-    connect(_purchase_button, &DSuggestButton::clicked, [&](){ emit on_purchase_item(_item_id); });
+    connect(_purchase_button, &DSuggestButton::clicked, this, &item_customer_page::on_purchase_click);
     connect(_delete_button, &DSuggestButton::clicked, [&](){ emit on_delete_item(_item_id); });
 }
 
@@ -68,6 +71,17 @@ void item_customer_page::update(core::model::item const& item, bool purchase_ena
     _purchase_button->setEnabled(purchase_enabled);
     _delete_button->setVisible(delete_enabled);
     _delete_button->setEnabled(delete_enabled);
+}
+
+void item_customer_page::on_purchase_click()
+{
+    auto conf = QMessageBox::question(
+        this,
+        "购买", tr("确定以 %1 购买商品 %2 吗？").arg(_price_label->text()).arg(_name_label->text()),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+    if (conf != QMessageBox::Yes)
+        return;
+    emit on_purchase_item(_item_id);
 }
 
 item_seller_page::item_seller_page(QWidget* parent)

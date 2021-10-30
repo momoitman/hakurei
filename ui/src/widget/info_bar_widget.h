@@ -22,6 +22,8 @@ public slots:
     void updateUsername(QString const& username);
     void updateContent(QString const& content);
 
+protected:
+    void resizeEvent(QResizeEvent* event) override;
 private:
     DLabel* header_label;
     DLabel* content_label;

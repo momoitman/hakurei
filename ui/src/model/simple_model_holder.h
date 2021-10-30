@@ -44,6 +44,18 @@ public:
         }
     }
 
+    [[nodiscard]] const T* get_item(int row) const
+    {
+        if (row >= _items.size())
+            return nullptr;
+        return &_items[row];
+    }
+
+    [[nodiscard]] const T* get_item(const QModelIndex& index) const
+    {
+        return get_item(index.row());
+    }
+
 protected:
     This* _this;
     std::vector<T> _items;

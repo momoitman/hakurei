@@ -24,6 +24,8 @@ info_bar_widget::info_bar_widget(QWidget* parent)
     header_label->move(130, 25);
     content_label->move(130, 68);
 
+    content_label->resize(width() - 130, 18);
+
     header_label->setStyleSheet("font: 32px;");
     content_label->setStyleSheet("font: 18px;");
 }
@@ -36,5 +38,12 @@ void info_bar_widget::updateUsername(QString const& username)
 void info_bar_widget::updateContent(QString const& content)
 {
     content_label->setText(content);
+}
+
+void info_bar_widget::resizeEvent(QResizeEvent* event)
+{
+    DFrame::resizeEvent(event);
+    header_label->resize(width() - 150, 32);
+    content_label->resize(width() - 150, 18);
 }
 }

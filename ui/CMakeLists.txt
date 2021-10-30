@@ -24,6 +24,7 @@ add_executable(hakurei_ui
     "src/page/seller_page.cpp"
     "src/page/admin_page.cpp"
     "src/page/item_pages.cpp"
+    "src/page/trivial_pages.cpp"
 
     "src/widget/main_toolbar.cpp"
     "src/widget/info_bar_widget.cpp"

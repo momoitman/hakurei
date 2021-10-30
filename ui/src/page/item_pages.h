@@ -32,6 +32,8 @@ public slots:
 signals:
     void on_purchase_item(std::string item_id);
     void on_delete_item(std::string item_id);
+private slots:
+    void on_purchase_click();
 
 private:
     bool _purchase_enabled, _delete_enabled;

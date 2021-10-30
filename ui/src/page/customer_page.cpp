@@ -7,6 +7,7 @@
 #include <QStandardItemModel>
 #include <QHeaderView>
 #include <QBoxLayout>
+#include <algorithm>
 #include <date/date.h>
 
 namespace hakurei::ui
@@ -16,6 +17,10 @@ using namespace core::service;
 customer_page::customer_page(QWidget* parent)
     : DFrame(parent)
 {
+    auto layout = new QHBoxLayout;
+    setLayout(layout);
+    layout->setSpacing(20);
+
     _pages = new DStackedWidget(this);
     _pages->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -24,12 +29,10 @@ customer_page::customer_page(QWidget* parent)
     _pages->addWidget(_my_subpage);
     _pages->addWidget(_discover_subpage);
 
-    auto layout = new QHBoxLayout;
-    setLayout(layout);
-    layout->setSpacing(20);
     _page_selector = new DListView(this);
     _page_selector->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     _page_selector->setFixedWidth(200);
+
     layout->addWidget(_page_selector);
     layout->addWidget(_pages);
 
@@ -45,10 +48,12 @@ customer_page::customer_page(QWidget* parent)
     _pages->setCurrentIndex(0);
 
     _item_page = new item_customer_page(this);
-    _item_page->setVisible(false);
+    _deposit_page = new deposit_page(this);
     
     connect(_page_selector->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &customer_page::on_switch_subpage);
+    connect(_deposit_page, &deposit_page::on_request_deposit, this, &customer_page::on_request_deposit);
+    connect(_item_page, &item_customer_page::on_purchase_item, this, &customer_page::purchase_item);
 }
 
 void customer_page::update_injector(core::service::service_injector* ij)
@@ -93,6 +98,24 @@ void customer_page::on_switch_subpage(QModelIndex const& qidx)
     }
 }
 
+void customer_page::on_request_deposit(int amount_cents)
+{
+    common_exception_handling(
+        [&]()
+        {
+            if (!_auth_svc || !_token)
+                return;
+            _auth_svc->deposit_money(_token, amount_cents);
+            _deposit_page->hide();
+            _my_subpage->update(_token);
+        });
+}
+
+void customer_page::on_open_deposit_page()
+{
+    _deposit_page->reset_and_show();
+}
+
 void customer_page::show_item_by_id(std::string_view id, bool purchase_enabled, bool delete_enabled)
 {
     common_exception_handling(
@@ -111,6 +134,20 @@ void customer_page::show_item(const item* item, bool purchase_enabled, bool dele
     _item_page->show();
 }
 
+void customer_page::purchase_item(std::string_view item_id)
+{
+    common_exception_handling(
+        [&]()
+        {
+            if (!_auth_svc || !_token)
+                return;
+
+            _order_svc->place_order(_token, item_id);
+            _item_page->hide();
+            _page_selector->setCurrentIndex(_page_selector->model()->index(0, 0));
+        });
+}
+
 namespace customer_subpages
 {
 my_subpage::my_subpage(customer_page* parent)
@@ -125,6 +162,9 @@ my_subpage::my_subpage(customer_page* parent)
     _info_bar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     layout->addWidget(_info_bar);
 
+    _deposit_button = new DSuggestButton(tr("充值"), this);
+    layout->addWidget(_deposit_button);
+
     layout->addSpacing(20);
 
     auto my_order_header_label = new DLabel(tr("我的订单"), this);
@@ -136,10 +176,10 @@ my_subpage::my_subpage(customer_page* parent)
 
     _my_orders_table->setModel(_my_orders_model);
     _my_orders_table->setItemDelegateForColumn(
-        _my_orders_model->column_index_price_cents(),
+        model::order_table_model::column_price_cents,
         new model::two_precision_cell_delegate(_my_orders_table));
     _my_orders_table->setItemDelegateForColumn(
-        _my_orders_model->column_index_time(),
+        model::order_table_model::column_time,
         new model::datetime_cell_delegate(_my_orders_table));
 
     _my_orders_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
@@ -155,6 +195,21 @@ my_subpage::my_subpage(customer_page* parent)
     _my_orders_table->horizontalHeader()->resizeSection(5, 100);
 
     layout->addWidget(_my_orders_table);
+
+    connect(_my_orders_table, &QTableView::doubleClicked, 
+        this, &my_subpage::on_double_click_orders_table);
+    connect(_deposit_button, &DSuggestButton::clicked,
+            _pg, &customer_page::on_open_deposit_page);
+}
+
+void my_subpage::on_double_click_orders_table(const QModelIndex& index)
+{
+    switch (index.column())
+    {
+    case model::order_table_model::column_item_id:
+        _pg->show_item_by_id(_my_orders_model->get_item(index)->item_id(), 
+            false, false);
+    }
 }
 
 void my_subpage::update(core::service::auth_token token)
@@ -171,27 +226,22 @@ void my_subpage::update(core::service::auth_token token)
                 });
             _info_bar->updateUsername(QString::fromStdString(_pg->_auth_svc->get_user_name(token)));
             _pg->_auth_svc->get_user_name(token);
+            std::reverse(_my_orders.begin(), _my_orders.end());
 
-
-            int balance_cents = _pg->_auth_svc->get_user_balance_cents(token);
+            _pg->_balance_cents = _pg->_auth_svc->get_user_balance_cents(token);
             int total_cents = std::accumulate(
                 _my_orders.begin(),
                 _my_orders.end(),
                 0,
                 [](int las, order const& it) { return las + it.price_cents(); });
-            auto msg = tr("您帐户的余额为 %3，您在本平台有 %1 笔订单，总消费金额 ￥%2.")
+            auto msg = tr("您帐户的余额为 ￥%3，您在本平台有 %1 笔订单，总消费金额 ￥%2.")
                 .arg(_my_orders.size());
             msg = arg_price_cents(msg, total_cents);
-            msg = arg_price_cents(msg, balance_cents);
+            msg = arg_price_cents(msg, _pg->_balance_cents);
             
             _info_bar->updateContent(msg);
             _my_orders_model->populate(_my_orders);
         });
-}
-
-void my_subpage::resizeEvent(QResizeEvent* event)
-{
-    DFrame::resizeEvent(event);
 }
 
 discover_subpage::discover_subpage(customer_page* parent)
@@ -235,7 +285,9 @@ void discover_subpage::show_item(const QModelIndex& index)
 {
     auto item = _my_order_model->get_item(index);
     if (item != nullptr)
-        emit _pg->show_item(item, true, false);
+        emit _pg->show_item(
+            item, _pg->_balance_cents >= item->price_cents(),
+            false);
 }
 
 void discover_subpage::re_search()

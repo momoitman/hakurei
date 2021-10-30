@@ -1,5 +1,6 @@
 #pragma once
 
+#include "page/trivial_pages.h"
 #include "page/item_pages.h"
 #include "widget/info_bar_widget.h"
 #include "model/item_list_model.h"
@@ -37,8 +38,11 @@ public slots:
 
 private slots:
     void on_switch_subpage(QModelIndex const& qidx);
+    void on_request_deposit(int amount_cents);
+    void on_open_deposit_page();
     void show_item_by_id(std::string_view id, bool purchase_enabled, bool delete_enabled);
     void show_item(const item* item, bool purchase_enabled, bool delete_enabled);
+    void purchase_item(std::string_view item_id);
 
 private:
     DListView* _page_selector;
@@ -49,11 +53,13 @@ private:
     core::service::item_service* _item_svc = nullptr;
     core::service::order_service* _order_svc = nullptr;
     core::service::auth_token _token = 0;
+    int _balance_cents;
 
     customer_subpages::my_subpage* _my_subpage;
     customer_subpages::discover_subpage* _discover_subpage;
 
     item_customer_page* _item_page;
+    deposit_page* _deposit_page;
     static constexpr int _my_subpage_idx = 0, _discover_subpage_idx = 1;
 
     friend class customer_subpages::my_subpage;
@@ -70,12 +76,13 @@ public:
     ~my_subpage() override = default;
 
 public slots:
+    void on_double_click_orders_table(const QModelIndex& index);
     void update(core::service::auth_token token);
 
 private:
-    void resizeEvent(QResizeEvent* event) override;
     customer_page *_pg;
     info_bar_widget* _info_bar;
+    DSuggestButton* _deposit_button;
 
     QTableView* _my_orders_table;
     model::order_table_model* _my_orders_model;

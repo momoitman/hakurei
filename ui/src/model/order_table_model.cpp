@@ -5,33 +5,33 @@ namespace hakurei::ui
 namespace model
 {
 order_table_model::order_table_model(QObject* parent)
-    : QAbstractTableModel(parent)
+    : QAbstractTableModel(parent), simple_model_holder(this)
 {
 }
 
 QVariant order_table_model::data(const QModelIndex& index, int role) const
 {
-    if (role != Qt::DisplayRole)
+    if (role != Qt::DisplayRole || index.row() >= _items.size())
         return QVariant();
+
     using namespace std::chrono;
-    if (index.row() >= _items.size())
-        return QVariant();
     auto& it = _items[index.row()];
     switch (index.column())
     {
-    case 0:
+    case column_id:
         return QVariant(QString::fromStdString(it.id()));
-    case 1:
+    case column_item_id:
         return QVariant(QString::fromStdString(it.item_id()));
-    case 2:
+    case column_price_cents:
         return QVariant(it.price_cents() / 100.0);
-    case 3:
+    case column_time:
         return QVariant::fromValue(duration_cast<milliseconds>(it.time().time_since_epoch()).count());
-    case 4:
+    case column_seller_id:
         return QVariant(QString::fromStdString(it.seller_uid()));
-    case 5:
+    case column_customer_id:
         return QVariant(QString::fromStdString(it.customer_uid()));
     }
+    return QVariant();
 }
 
 QVariant order_table_model::headerData(int section, Qt::Orientation orientation, int role) const
@@ -40,30 +40,20 @@ QVariant order_table_model::headerData(int section, Qt::Orientation orientation,
         return QVariant();
     switch (section)
     {
-    case 0:
+    case column_id:
         return tr("ID");
-    case 1:
+    case column_item_id:
         return tr("商品 ID");
-    case 2:
+    case column_price_cents:
         return tr("价格");
-    case 3:
+    case column_time:
         return tr("订单时间");
-    case 4:
+    case column_seller_id:
         return tr("卖家");
-    case 5:
+    case column_customer_id:
         return tr("买家");
     }
     return QVariant();
-}
-
-int order_table_model::column_index_price_cents()
-{
-    return 2;
-}
-
-int order_table_model::column_index_time()
-{
-    return 3;
 }
 }
 }  // namespace hakurei::ui
