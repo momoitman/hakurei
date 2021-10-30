@@ -5,7 +5,7 @@
 #include "widget/info_bar_widget.h"
 #include "model/item_list_model.h"
 #include "model/item_list_delegate.h"
-#include "model/order_table_model.h"
+#include "model/table_models.h"
 #include "window/register_or_edit_window.h"
 #include <service/services.h>
 

@@ -24,7 +24,7 @@ info_bar_widget::info_bar_widget(QWidget* parent)
     header_label->move(130, 25);
     content_label->move(130, 68);
 
-    content_label->resize(width() - 130, 18);
+    content_label->resize(width() - 130, 25);
 
     header_label->setStyleSheet("font: 32px;");
     content_label->setStyleSheet("font: 18px;");
@@ -43,7 +43,7 @@ void info_bar_widget::updateContent(QString const& content)
 void info_bar_widget::resizeEvent(QResizeEvent* event)
 {
     DFrame::resizeEvent(event);
-    header_label->resize(width() - 150, 32);
-    content_label->resize(width() - 150, 18);
+    header_label->resize(width() - 150, 36);
+    content_label->resize(width() - 150, 25);
 }
 }

@@ -30,6 +30,7 @@ void order_service_impl::place_order(auth_token token, std::string_view item_id)
             _auth_svc->get_user_info_ref(token)->id()
         )
     );
+    _auth_svc->deposit_money(item.seller_uid(), item.price_cents());
 }
 
 void order_service_impl::get_my_bought_orders(auth_token token, std::vector<model::order>& dest)

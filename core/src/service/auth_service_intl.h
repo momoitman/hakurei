@@ -17,6 +17,7 @@ class auth_service_intl : public auth_service
 public:
     virtual model::user* get_user_info_ref(auth_token token) = 0;
     virtual void withdraw_money(auth_token token, int money_cents) = 0;
+    virtual void deposit_money(std::string_view uid, int money_cents) = 0;
     virtual void verify_admin_user(auth_token token) = 0;
 };
 
@@ -45,6 +46,7 @@ public:
         std::optional<std::string_view> contact, std::optional<std::string_view> address) override;
     int get_user_balance_cents(auth_token token) override;
     int deposit_money(auth_token token, int money_cents) override;
+    void deposit_money(std::string_view uid, int money_cents) override;
 
     model::user* get_user_info_ref(auth_token token) override;
     void withdraw_money(auth_token token,int money_cents) override;

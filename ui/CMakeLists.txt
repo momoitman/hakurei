@@ -31,7 +31,7 @@ add_executable(hakurei_ui
 
     "src/model/item_list_model.cpp"
     "src/model/item_list_delegate.cpp"
-    "src/model/order_table_model.cpp"
+    "src/model/table_models.cpp"
 
     "src/model/cell_delegates.cpp"
 

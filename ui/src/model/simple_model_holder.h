@@ -55,7 +55,6 @@ public:
     {
         return get_item(index.row());
     }
-
 protected:
     This* _this;
     std::vector<T> _items;

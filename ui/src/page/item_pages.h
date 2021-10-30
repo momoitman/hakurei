@@ -1,9 +1,11 @@
 #pragma once
 
 #include "model/item.h"
+#include <DLineEdit>
 #include <DFrame>
 #include <DDialog>
 #include <DWarningButton>
+#include <DPlainTextEdit>
 #include <DSuggestButton>
 #include <DLabel>
 #include <string>
@@ -34,9 +36,9 @@ signals:
     void on_delete_item(std::string item_id);
 private slots:
     void on_purchase_click();
+    void on_delete_click();
 
 private:
-    bool _purchase_enabled, _delete_enabled;
     std::string _item_id;
 
     DLabel *_id_label, *_name_label, *_price_label, *_desc_label;
@@ -44,21 +46,32 @@ private:
     DWarningButton* _delete_button;
 };
 
-class item_seller_page : public DFrame
+class item_edit_page : public DDialog
 {
     Q_OBJECT
 public:
-    explicit item_seller_page(QWidget* parent);
-    ~item_seller_page() override = default;
+    explicit item_edit_page(QWidget* parent);
+    ~item_edit_page() override = default;
 
 public slots:
-    void update(std::string item_id, bool delete_enabled, bool editing_enabled);
+    void update_new();
+    void update(core::model::item const& item, bool delete_enabled);
 signals:
-    void on_edit_item(std::string item_id);
-    void on_delete_item(std::string item_id);
+    void on_create_item(QString const& name, int price_cents, QString const& desc);
+    void on_edit_item(std::string_view item_id, QString const& name, int price_cents, QString const& desc);
+    void on_delete_item(std::string_view item_id);
+
+private slots:
+    void on_save_click();
+    void on_delete_click();
 
 private:
-    bool _delete_enabled, _editing_enabled;
+    bool _creating_item;
     std::string _item_id;
+    DLabel* _id_label;
+    DLineEdit *_name_edit, *_price_edit;
+    DPlainTextEdit* _desc_edit;
+    DSuggestButton* _save_button;
+    DWarningButton* _delete_button;
 };
 }  // namespace hakurei::ui

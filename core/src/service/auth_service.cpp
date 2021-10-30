@@ -165,6 +165,15 @@ int auth_service_impl::deposit_money(auth_token token, int money_cents)
     return u->balance_cents();
 }
 
+void auth_service_impl::deposit_money(std::string_view uid, int money_cents)
+{
+    if (money_cents <= 0)
+        throw invalid_argument_error("You can't deposit 0 or negative money.");
+    auto u = get_user_info(uid);
+    u->set_balance_cents(u->balance_cents() + money_cents);
+    _u_repo->save(*u);
+}
+
 model::user* auth_service_impl::get_user_info_ref(auth_token token)
 {
     auto iter = _sessions.find(token);

@@ -1,9 +1,12 @@
 #include "item_pages.h"
 
 #include "util/str_util.h"
+#include "common_exception_handle.h"
+
 #include <QScrollArea>
 #include <QBoxLayout>
 #include <QMessageBox>
+#include <cmath>
 
 namespace hakurei::ui
 {
@@ -13,11 +16,11 @@ item_show_page::item_show_page(QWidget* parent)
     setModal(true);
     setMinimumWidth(400);
     resize(400, 600);
-    setContentsMargins(20, 20, 20, 20);
+    setContentsMargins(20, 0, 20, 20);
     hide();
 
     auto vlayout = new QVBoxLayout(this);
-    vlayout->setSpacing(5);
+    vlayout->setSpacing(0);
 
     _purchase_button = new DSuggestButton(tr("购买"), this);
     _delete_button = new DWarningButton(this);
@@ -59,7 +62,7 @@ item_show_page::item_show_page(QWidget* parent)
     addContent(mainContent);
 
     connect(_purchase_button, &DSuggestButton::clicked, this, &item_show_page::on_purchase_click);
-    connect(_delete_button, &DSuggestButton::clicked, [&](){ emit on_delete_item(_item_id); });
+    connect(_delete_button, &DSuggestButton::clicked, this, &item_show_page::on_delete_click);
 }
 
 void item_show_page::update(core::model::item const& item, bool purchase_visible, bool purchase_enabled, bool delete_enabled)
@@ -91,11 +94,115 @@ void item_show_page::on_purchase_click()
     emit on_purchase_item(_item_id);
 }
 
-item_seller_page::item_seller_page(QWidget* parent)
+void item_show_page::on_delete_click()
 {
+    auto conf = QMessageBox::question(
+        this,
+        "删除", tr("确定删除商品 %1(%2) 吗？").arg(_name_label->text()).arg(_id_label->text()),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+    if (conf != QMessageBox::Yes)
+        return;
+    emit on_delete_item(_item_id);
 }
 
-void item_seller_page::update(std::string item_id, bool delete_enabled, bool editing_enabled)
+item_edit_page::item_edit_page(QWidget* parent)
+    : DDialog(parent)
 {
+    setModal(true);
+    setMinimumWidth(400);
+    resize(400, 600);
+    setContentsMargins(20, 0, 20, 20);
+    hide();
+
+    auto vlayout = new QVBoxLayout(this);
+    vlayout->setSpacing(5);
+
+    _id_label = new DLabel(this);
+    _name_edit = new DLineEdit(this);
+    _price_edit = new DLineEdit(this);
+    _desc_edit = new DPlainTextEdit(this);
+
+    _save_button = new DSuggestButton(tr("保存"), this);
+    _delete_button = new DWarningButton(this);
+    _delete_button->setText("删除");
+    _name_edit->setPlaceholderText(tr("名称"));
+    _price_edit->setPlaceholderText(tr("价格"));
+    _desc_edit->setPlaceholderText(tr("描述"));
+
+    _desc_edit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    
+    vlayout->addWidget(_delete_button);
+    vlayout->addWidget(_id_label);
+    vlayout->addWidget(_name_edit);
+    vlayout->addWidget(_price_edit);
+    vlayout->addWidget(_desc_edit);
+    vlayout->addWidget(_save_button);
+    _price_edit->lineEdit()->setValidator(
+        new QDoubleValidator(0, std::numeric_limits<double>::max(), 2, this));
+
+    // code specified for DDialog
+    auto mainContent = new QWidget(this);
+    mainContent->setLayout(vlayout);
+    addContent(mainContent);
+
+    connect(_delete_button, &DWarningButton::clicked, this, &item_edit_page::on_delete_click);
+    connect(_save_button, &DSuggestButton::clicked, this, &item_edit_page::on_save_click);
+}
+
+void item_edit_page::update_new()
+{
+    _delete_button->setVisible(false);
+    _delete_button->setEnabled(false);
+    _id_label->setVisible(false);
+    _name_edit->clear();
+    _price_edit->clear();
+    _desc_edit->clear();
+    _creating_item = true;
+}
+
+void item_edit_page::update(core::model::item const& item, bool delete_enabled)
+{
+    _item_id = item.id();
+    _delete_button->setVisible(delete_enabled);
+    _delete_button->setEnabled(delete_enabled);
+    _id_label->setVisible(true);
+    _id_label->setText(QString::fromStdString(_item_id));
+    _name_edit->setText(QString::fromStdString(item.name()));
+    _price_edit->setText(arg_price_cents("%1", item.price_cents()));
+    _desc_edit->setPlainText(QString::fromStdString(item.description()));
+    _creating_item = false;
+}
+
+void item_edit_page::on_save_click()
+{
+    if (_name_edit->text().isEmpty() 
+        || _price_edit->text().isEmpty() || _desc_edit->toPlainText().isEmpty())
+    {
+        critial_message_box("所有项均为必填。", "验证失败");
+        return;
+    }
+    auto price_cents = static_cast<int>(std::round(_price_edit->text().toDouble() * 100.0));
+    if (_creating_item)
+        emit on_create_item(
+            _name_edit->text(),
+            price_cents,
+            _desc_edit->toPlainText()
+        );
+    else
+        emit on_edit_item(
+            _item_id, _name_edit->text(),
+            price_cents,
+            _desc_edit->toPlainText());
+}
+
+void item_edit_page::on_delete_click()
+{
+    auto conf = QMessageBox::question(
+        this,
+        "删除", tr("确定删除商品 %1(%2) 吗？").arg(_name_edit->text()).arg(_id_label->text()),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+    if (conf != QMessageBox::Yes)
+        return;
+    emit on_delete_item(_item_id);
 }
 }
