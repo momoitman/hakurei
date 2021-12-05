@@ -62,5 +62,7 @@ TEST(Hakurei_persistence_test, table)
     table::row_t test_row_bad1(std::initializer_list<table::cell_t>({"15"}));
     EXPECT_THROW(table.check_row_fit(test_row_bad1), invalid_argument_error);
     table::row_t test_row_bad2(std::initializer_list<table::cell_t>({"15", 15}));
+#ifndef NDEBUG
     EXPECT_DEATH(table.check_row_fit(test_row_bad2), "check_row_fit");
+#endif
 }
