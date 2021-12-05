@@ -118,7 +118,7 @@ void main_window::on_switch_admin_page()
         {
             if (_auth_token && _auth_svc && _auth_svc->is_user_admin(_auth_token))
             {
-                _admin_pg->update();
+                _admin_pg->update(_auth_token);
                 _pages->setCurrentWidget(_admin_pg);
             }
         });

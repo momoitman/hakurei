@@ -38,11 +38,11 @@ customer_page::customer_page(QWidget* parent)
 
     auto model = new QStandardItemModel(_page_selector);
     _page_selector->setModel(model);
+    _page_selector->setIconSize(QSize(16, 16));
+    _page_selector->setSelectionMode(QAbstractItemView::SingleSelection);
 
     model->setItem(_my_subpage_idx, new QStandardItem(QIcon(":images/icon_user.svg"), tr("我的")));
     model->setItem(_discover_subpage_idx, new QStandardItem(QIcon(":images/icon_search.svg"), tr("发现")));
-    _page_selector->setIconSize(QSize(16, 16));
-    _page_selector->setSelectionMode(QAbstractItemView::SingleSelection);
 
     _page_selector->setCurrentIndex(model->index(0, 0));
     _pages->setCurrentIndex(0);
@@ -224,24 +224,13 @@ my_subpage::my_subpage(customer_page* parent)
 
     _my_orders_model = new model::order_table_model(_my_orders_table);
     _my_orders_table->setModel(_my_orders_model);
-    _my_orders_table->setItemDelegateForColumn(
-        model::order_table_model::column_price_cents,
-        new model::two_precision_cell_delegate(_my_orders_table));
-    _my_orders_table->setItemDelegateForColumn(
-        model::order_table_model::column_time,
-        new model::datetime_cell_delegate(_my_orders_table));
 
     _my_orders_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     _my_orders_table->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     _my_orders_table->setSelectionMode(QAbstractItemView::SingleSelection);
     _my_orders_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    _my_orders_table->horizontalHeader()->resizeSection(0, 100);
-    _my_orders_table->horizontalHeader()->resizeSection(1, 100);
-    _my_orders_table->horizontalHeader()->resizeSection(2, 100);
-    _my_orders_table->horizontalHeader()->resizeSection(3, 200);
-    _my_orders_table->horizontalHeader()->resizeSection(4, 100);
-    _my_orders_table->horizontalHeader()->resizeSection(5, 100);
+    model::order_table_model::configure_table(_my_orders_table);
 
     connect(_my_orders_table, &QTableView::doubleClicked, 
         this, &my_subpage::on_double_click_orders_table);
@@ -278,7 +267,7 @@ void my_subpage::update(core::service::auth_token token)
             _pg->_current_user = _pg->_auth_svc->get_user_info(token);
             _pg->_order_svc->get_my_bought_orders(token, _my_orders);
             _info_bar->updateUsername(QString::fromStdString(_pg->_auth_svc->get_user_name(token)));
-            std::reverse(_my_orders.begin(), _my_orders.end());
+            std::reverse(_my_orders.begin(), _my_orders.end()); // TODO performance..
 
             int total_cents = std::accumulate(
                 _my_orders.begin(),

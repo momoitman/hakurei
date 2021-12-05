@@ -43,8 +43,10 @@ void item_service_impl::remove_item(auth_token token, std::string_view id)
 {
     auto u = _auth_svc->get_user_info_ref(token);
     auto item = get_item_force(id);
-    if (item.seller_uid() != u->id())
+    if (item.seller_uid() != u->id() && !_auth_svc->is_user_admin(token))
         throw access_denied_error("You can only remove item of yourself!");
+    if (item.status() != model::item_status::on_stock)
+        return;
     item.set_status(model::item_status::deleted);
     _i_repo->save(item);
 }

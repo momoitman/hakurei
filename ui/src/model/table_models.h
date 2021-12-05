@@ -1,8 +1,10 @@
 #pragma once
 
+#include "model/user.h"
 #include "model/item.h"
 #include "model/order.h"
 #include "simple_model_holder.h"
+#include <QTableView>
 #include <QAbstractTableModel>
 
 namespace hakurei::ui
@@ -28,6 +30,7 @@ public:
     int columnCount(const QModelIndex& parent) const override { return 6; }
     QVariant data(const QModelIndex& index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    static void configure_table(QTableView* view);
 };
 
 class item_table_model : public QAbstractTableModel, public simple_model_holder<item, item_table_model>
@@ -49,6 +52,26 @@ public:
     int columnCount(const QModelIndex& parent) const override { return 7; }
     QVariant data(const QModelIndex& index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    static void configure_table(QTableView* view);
+};
+class user_table_model : public QAbstractTableModel, public simple_model_holder<user, user_table_model>
+{
+    Q_OBJECT
+public:
+    friend class simple_model_holder<user, user_table_model>;
+    static constexpr int column_id = 0;
+    static constexpr int column_name = 1;
+    static constexpr int column_contact = 2;
+    static constexpr int column_address = 3;
+    static constexpr int column_balance_cents = 4;
+
+    explicit user_table_model(QObject* parent);
+    ~user_table_model() override = default;
+    int rowCount(const QModelIndex& parent) const override { return _items.size(); }
+    int columnCount(const QModelIndex& parent) const override { return 5; }
+    QVariant data(const QModelIndex& index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    static void configure_table(QTableView* view);
 };
 }
 }  // namespace hakurei::ui

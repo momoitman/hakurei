@@ -7,7 +7,7 @@
 #include "model/item_list_delegate.h"
 #include "model/table_models.h"
 #include "window/register_or_edit_window.h"
-#include <service/services.h>
+#include "service/services.h"
 
 #include <DListView>
 #include <DWidget>

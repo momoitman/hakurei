@@ -1,0 +1,20 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "cppgdb",
+      "name": "hakurei_ui (ui\\hakurei_ui)",
+      "project": "CMakeLists.txt",
+      "projectTarget": "hakurei_ui (ui\\hakurei_ui)",
+      "comment": "Learn how to configure remote debugging. For more info, see http://aka.ms/vslinuxdebug",
+      "debuggerConfiguration": "gdb",
+      "MIMode": "gdb",
+      "args": [],
+      "env": {
+        "DISPLAY": "192.168.92.1:0",
+        "XDG_CURRENT_DESKTOP": "Deepin"
+      }
+    }
+  ]
+}

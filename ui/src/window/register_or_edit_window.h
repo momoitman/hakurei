@@ -42,6 +42,6 @@ private:
     DLineEdit* _contact_text;
     DLineEdit* _address_text;
     DSuggestButton* _ok_btn;
-    bool _password_noneed;
+    bool _password_noneed = false;
 };
 }  // namespace hakurei::ui

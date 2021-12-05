@@ -6,5 +6,7 @@
         <file>images/icon_search.svg</file>
         <file>images/icon_user.svg</file>
         <file>images/icon_user_2.png</file>
+        <file>images/icon_item.svg</file>
+        <file>images/icon_order.svg</file>
     </qresource>
 </RCC>

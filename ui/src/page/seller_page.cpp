@@ -58,33 +58,8 @@ seller_page::seller_page(QWidget* parent)
     _my_order_table->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     _my_item_table->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
 
-    _my_order_table->setItemDelegateForColumn(
-        model::order_table_model::column_time,
-        new model::datetime_cell_delegate(_my_order_table));
-    _my_order_table->setItemDelegateForColumn(
-        model::order_table_model::column_price_cents,
-        new model::two_precision_cell_delegate(_my_order_table));
-    _my_item_table->setItemDelegateForColumn(
-        model::item_table_model::column_on_stock_time,
-        new model::datetime_cell_delegate(_my_item_table));
-    _my_item_table->setItemDelegateForColumn(
-        model::item_table_model::column_price_cents,
-        new model::two_precision_cell_delegate(_my_item_table));
-
-    _my_order_table->horizontalHeader()->resizeSection(0, 100);
-    _my_order_table->horizontalHeader()->resizeSection(1, 100);
-    _my_order_table->horizontalHeader()->resizeSection(2, 100);
-    _my_order_table->horizontalHeader()->resizeSection(3, 200);
-    _my_order_table->horizontalHeader()->resizeSection(4, 100);
-    _my_order_table->horizontalHeader()->resizeSection(5, 100);
-
-    _my_item_table->horizontalHeader()->resizeSection(0, 80);
-    _my_item_table->horizontalHeader()->resizeSection(1, 150);
-    _my_item_table->horizontalHeader()->resizeSection(2, 100);
-    _my_item_table->horizontalHeader()->resizeSection(3, 100);
-    _my_item_table->horizontalHeader()->resizeSection(4, 70);
-    _my_item_table->horizontalHeader()->resizeSection(5, 200);
-    _my_item_table->horizontalHeader()->resizeSection(6, 70);
+    item_table_model::configure_table(_my_item_table);
+    order_table_model::configure_table(_my_order_table);
 
     _item_show_page = new item_show_page(this);
     _user_page = new user_page(this);
